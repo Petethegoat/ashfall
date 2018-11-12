@@ -74,11 +74,11 @@ end
 function this.updateConditionState()
 	if not common.data then return end
 	
-	previousCondition = previousCondition or "Comfortable"
+	previousCondition = previousCondition or "comfortable"
 
 	tempPlayer = common.data.tempPlayer or 0
     for conditionType, condition in pairs(conditionValues) do
-        if tempPlayer > condition.min  and tempPlayer <= condition.max then
+        if tempPlayer >= condition.min  and tempPlayer <= condition.max then
             currentCondition = conditionType
 			
 			--Condition changed

@@ -39,15 +39,23 @@ end
 
 this.conditionValues = {
     scorching 	= { text = "Scorching"   , min = 80   , max = 100	, spell = "fw_cond_scorching" } ,
-    veryHot 	= { text = "Very hot"    , min = 60   , max = 80	, spell = "fw_cond_very_hot"  } ,
+    veryHot 	= { text = "Very Hot"    , min = 60   , max = 80	, spell = "fw_cond_very_hot"  } ,
     hot 		= { text = "Hot"         , min = 40   , max = 60  	, spell = "fw_cond_hot"       } ,
     warm 		= { text = "Warm"        , min = 20   , max = 40	, spell = "fw_cond_warm"      } ,
     comfortable = { text = "Comfortable" , min = -20  , max = 20	, spell = "NONE"               } ,
     chilly 		= { text = "Chilly"      , min = -40  , max = -20	, spell = "fw_cond_chilly"    } ,
     cold 		= { text = "Cold"        , min = -60  , max = -40	, spell = "fw_cond_cold"      } ,
-    veryCold 	= { text = "Very cold"   , min = -80  , max = -60	, spell = "fw_cond_very_cold" } ,
+    veryCold 	= { text = "Very Cold"   , min = -80  , max = -60	, spell = "fw_cond_very_cold" } ,
     freezing 	= { text = "Freezing"    , min = -100 , max = -80	, spell = "fw_cond_freezing"  }
 }
+
+this.wetnessValues = {
+	soaked  =   { text = "Soaked"	, min = 75, max = 100  	, spell = "fw_wetcond_soaked" 	},
+	wet     =   { text = "Wet"		, min = 50, max = 75  	, spell = "fw_wetcond_wet" 		},
+	damp    =   { text = "Damp"	    , min = 25, max = 50  	, spell = "fw_wetcond_damp" 	},
+	dry     =   { text = "Dry"		, min = 0, max = 25  	, spell = "NONE"			 	}
+}
+
 
 this.bedTemp = 20
 

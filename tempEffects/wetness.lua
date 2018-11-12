@@ -11,11 +11,11 @@ local thunderEffect = 160
 local maxDryingEffect = 50 --dry per hour at max heat
 
 --Boundaries for wetEffects
-this.dampLevel = 25
-this.wetLevel = 50
-this.soakedLevel = 75
+this.dampLevel = common.wetnessValues.damp.min
+this.wetLevel = common.wetnessValues.wet.min
+this.soakedLevel = common.wetnessValues.soaked.min
 
---Height at which Player gets wetEFfects
+--Height at which Player gets wetEfects
 local dampHeight = 50
 local wetHeight = 80
 local soakedHeight = 110

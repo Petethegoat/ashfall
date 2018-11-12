@@ -1,6 +1,7 @@
 local this = {}
 
 local common = require("mer.ashfall.common")
+local tooltips = require("mer.ashfall.ui.hudTooltips")
 
 local outerFrame
 local midBlock
@@ -61,7 +62,7 @@ function this.updateUI()
 			bar.width = 0
 		end
 		
-		wetnessBar.widget.current = common.data.wetness or 0
+		wetnessBar.widget.current = wetness
 		
 		outerFrame:updateLayout()
 	end
@@ -97,6 +98,8 @@ local function logUI(e)
 		---\
 					
 			local wetnessBlock = topBlock:createBlock({"Ashfall:wetnessBlock"})
+            --Register Tooltip
+            wetnessBlock:register("help", tooltips.wetnessIndicator )
 			wetnessBlock = quickFormat(wetnessBlock, 0)
 			---\
 				local wetnessBackground = wetnessBlock:createRect({color = {0.0, 0.3, 0.3} })
@@ -113,10 +116,13 @@ local function logUI(e)
 				wetnessBar.layoutOriginFractionX = 0.0
 				
 			local conditionLabelBlock = topBlock:createBlock({"Ashfall:conditionLabelBlock"})
+
 			conditionLabelBlock = quickFormat(conditionLabelBlock, 0)
 			conditionLabelBlock.paddingLeft = 2
 			---\
 				conditionLabel = conditionLabelBlock:createLabel({text = "Comfortable" })
+                --register tooltip
+                conditionLabel:register("help", tooltips.conditionIndicator )
 	
 			---\
 				local wetnessIcon = wetnessBlock:createImage({path="Textures/Ashfall/indicators/wetness.dds"})
@@ -148,6 +154,7 @@ local function logUI(e)
 					---\
 						--Left Player Bar
 						leftTempPlayerBar = leftMidBlock:createFillBar({current = 50, max = 100})
+                        leftTempPlayerBar:register( "help", tooltips.playerLeftIndicator )
 						leftTempPlayerBar.widget.showText = false
 						leftTempPlayerBar.height = tempBarHeight
 						leftTempPlayerBar.width = tempBarWidth
@@ -160,6 +167,7 @@ local function logUI(e)
 					---\	
 						--Left tempLimit bar
 						leftTempLimitBar = leftMidBlock:createFillBar({current = 50, max = 100})
+                        leftTempLimitBar:register( "help", tooltips.limitLeftIndicator )
 						leftTempLimitBar.widget.showText = false
 						leftTempLimitBar.height = limitBarHeight
 						leftTempLimitBar.width = tempBarWidth
@@ -186,6 +194,7 @@ local function logUI(e)
 					---\
 						--Right Color Bar
 						rightTempPlayerBar = rightMidBlock:createFillBar({max = 100})
+                        rightTempPlayerBar:register( "help", tooltips.playerRightIndicator )
 						rightTempPlayerBar.widget.showText = false
 						rightTempPlayerBar.height = tempBarHeight
 						rightTempPlayerBar.width = tempBarWidth
@@ -194,6 +203,7 @@ local function logUI(e)
 					--\	
 						--Right tempLimit bar
 						rightTempLimitBar = rightMidBlock:createFillBar({current = 50, max = 100})
+                        rightTempLimitBar:register( "help", tooltips.limitRightIndicator )
 						rightTempLimitBar.widget.showText = false
 						rightTempLimitBar.height = limitBarHeight
 						rightTempLimitBar.width = tempBarWidth

@@ -3,6 +3,7 @@ local common = require("mer.ashfall.common")
 local coldRestLimit = common.conditionValues.veryCold.min
 local hotRestLimit = common.conditionValues.veryHot.max
 
+
 local interruptText = ""
 local isScripted
 
@@ -33,8 +34,8 @@ end
 --replacing the text and removing rest/wait buttons
 local function activateRestMenu (e)
     local temp = common.data.tempLimit + ( isScripted and common.bedTemp or 0 )
-    
     if temp < coldRestLimit or temp > hotRestLimit then
+
         local restMenu = e.element
         
         local labelText = restMenu:findChild( tes3ui.registerID("MenuRestWait_label_text") )

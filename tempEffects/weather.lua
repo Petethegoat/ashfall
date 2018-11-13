@@ -13,16 +13,16 @@ local common = require("mer.ashfall.common")
 local currentWeather
 
 local weatherValues = { 
-	[tes3.weather.blight]	= {	min	= -10	, max =  50	},
-	[tes3.weather.ash] 		= {	min	= -15	, max =  40	},
-	[tes3.weather.clear] 	= {	min	= -30	, max =  30	},
-	[tes3.weather.cloudy] 	= {	min	= -35	, max =  15	},
-	[tes3.weather.overcast] = {	min	= -45	, max =  10	},
-	[tes3.weather.foggy] 	= {	min	= -50	, max =  0	},
-	[tes3.weather.rain] 	= {	min	= -65	, max = -5	},
-	[tes3.weather.thunder] 	= {	min	= -60	, max = -10	},
-	[tes3.weather.snow] 	= {	min	= -80	, max = -30	},
-	[tes3.weather.blizzard] = {	min	= -100	, max = -50	}
+	[tes3.weather.blight]	= {	min	= -10	, max =  80  },
+	[tes3.weather.ash] 		= {	min	= -15	, max =  60	 },
+	[tes3.weather.clear] 	= {	min	= -50	, max =  50	 },
+	[tes3.weather.cloudy] 	= {	min	= -55	, max =  15	 },
+	[tes3.weather.overcast] = {	min	= -60	, max =  10	 },
+	[tes3.weather.foggy] 	= {	min	= -70	, max =  0	 },
+	[tes3.weather.rain] 	= {	min	= -75	, max = -20	 },
+	[tes3.weather.thunder] 	= {	min	= -100	, max = -30	 },
+	[tes3.weather.snow] 	= {	min	= -120	, max = -50	 },
+	[tes3.weather.blizzard] = {	min	= -150	, max = -80	 }
 }
 
 

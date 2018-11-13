@@ -36,7 +36,7 @@ function this.wetnessIndicator()
     if not common.data then return end
     if not common.wetnessValues[common.data.wetCondition] then return end
 
-    local headerText = "Wet level: You are " .. common.wetnessValues[common.data.wetCondition].text--:lower()
+    local headerText = "Wet level: " .. common.wetnessValues[common.data.wetCondition].text--:lower()
     local labelText = "The wetter you are, the longer it takes to warm up, the quicker you cool down, and the more susceptible you are to shock damage."
     createTooltip(headerText, labelText)
 
@@ -46,7 +46,7 @@ function this.conditionIndicator()
     if not common.data then return end
     if not common.conditionValues[common.data.currentCondition] then return end 
     
-    local headerText = "Condition: You are " .. common.conditionValues[common.data.currentCondition].text--:lower()
+    local headerText = "Condition: " .. common.conditionValues[common.data.currentCondition].text--:lower()
     local labelText = "The player's current condition, determined by Player Temperature."
     createTooltip(headerText, labelText)
 end

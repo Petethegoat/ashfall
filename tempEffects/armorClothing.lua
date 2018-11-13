@@ -32,10 +32,20 @@ local function getCoverageRating( rawValue )
     return math.floor( rawValue * armorClothingData.coverageRatingMultiplier )
 end
 
+local function isValidArmorSlot( armorSlot )
+    return armorSlot ~= tes3.armorSlot.shield
+end
+local function isValidClothingSlot( clothingSlot )
+    return(
+        clothingSlot ~= tes3.clothingSlot.ring  
+        and clothingSlot ~= tes3.clothingSlot.amulet 
+        and clothingSlot ~= tes3.clothingSlot.belt 
+    )
+end
 
-local function calculateItemWarmth( itemStack, slotName, thisData, cache )
-    local itemId = itemStack.object.id
-    local itemName = itemStack.object.name   
+local function calculateItemWarmth( item, slotName, thisData, cache )
+    local itemId = item.id
+    local itemName = item.name   
     local thisWarmth
     --Check if warmth value exists in config file
     for id, val in pairs(cache) do
@@ -66,9 +76,9 @@ local function calculateItemWarmth( itemStack, slotName, thisData, cache )
     return thisWarmth
 end
 
-local function calculateItemCoverage( itemStack, slotName, data, cache )
-    local itemId = itemStack.object.id
-    local itemName = itemStack.object.name   
+local function calculateItemCoverage( item, slotName, data, cache )
+    local itemId = item.id
+    local itemName =item.name   
     local thisCoverage
     --Check if coverage value exists in config file
     for id, val in pairs(cache) do
@@ -108,10 +118,10 @@ local function updateArmorValues()
     
     for slotName, armorSlot in pairs(tes3.armorSlot) do
         local armorStack = tes3.getEquippedItem({ actor = tes3.player, objectType = tes3.objectType.armor, slot = armorSlot })
-        if armorStack and armorSlot ~= tes3.armorSlot.shield 
+        if armorStack and isValidArmorSlot(armorSlot)
         then
-            local itemWarmth = calculateItemWarmth( armorStack, slotName, armorClothingData.armorData, armorWarmthCache )
-            local itemCoverage = calculateItemCoverage(  armorStack, slotName, armorClothingData.armorData, armorCoverageCache )
+            local itemWarmth = calculateItemWarmth( armorStack.object, slotName, armorClothingData.armorData, armorWarmthCache )
+            local itemCoverage = calculateItemCoverage(  armorStack.object, slotName, armorClothingData.armorData, armorCoverageCache )
             --update Cache
             armorWarmthCache[armorStack.object.id] = itemWarmth
             armorCoverageCache[armorStack.object.id] = itemCoverage
@@ -133,6 +143,8 @@ local function updateArmorValues()
     
 end
 
+
+
 local function updateClothingValues()
     if not common.data then return end
     local totalWarmth = 0
@@ -140,14 +152,10 @@ local function updateClothingValues()
     
     for slotName, clothingSlot in pairs(tes3.clothingSlot) do
         local clothingStack = tes3.getEquippedItem({ actor = tes3.player, objectType = tes3.objectType.clothing, slot = clothingSlot })
-        local isValidClothing = clothingStack  
-            and clothingSlot ~= tes3.clothingSlot.ring  
-            and clothingSlot ~= tes3.clothingSlot.amulet 
-            and clothingSlot ~= tes3.clothingSlot.belt 
 
-        if isValidClothing then
-            local itemWarmth = calculateItemWarmth( clothingStack, slotName, armorClothingData.clothingData, clothingWarmthCache )
-            local itemCoverage = calculateItemCoverage(  clothingStack, slotName, armorClothingData.clothingData, clothingCoverageCache )
+        if clothingStack and isValidClothingSlot( clothingSlot ) then
+            local itemWarmth = calculateItemWarmth( clothingStack.object, slotName, armorClothingData.clothingData, clothingWarmthCache )
+            local itemCoverage = calculateItemCoverage(  clothingStack.object, slotName, armorClothingData.clothingData, clothingCoverageCache )
             --update Cache
             clothingWarmthCache[clothingStack.object.id] = itemWarmth
             clothingCoverageCache[clothingStack.object.id] = itemCoverage
@@ -188,11 +196,78 @@ local function calculateEquipped(e)
     end
 end
 
+local function quickFormat(element, padding)
+	element.paddingAllSides = padding
+	element.autoHeight = true
+	element.autoWidth = true
+	return element
+end
+
+local armorSlotDict = {}
+for name, slot in pairs(tes3.armorSlot) do
+    armorSlotDict[slot] = name
+end
+local clothingSlotDict = {}
+for name, slot in pairs(tes3.clothingSlot) do
+    clothingSlotDict[slot] = name
+end
+
+local function insertRatings(e)
+    local tooltip = e.tooltip
+    if not e.tooltip then return end
+    if not e.object then return end
+    if e.object.objectType == tes3.objectType.armor then
+        if isValidArmorSlot( e.object.slot ) then
+            
+            local ratingsBlock = tooltip:createBlock({ id = tes3ui.registerID("Ashfall:ratings_block") })
+            ratingsBlock.flowDirection = "left_to_right"
+            ratingsBlock.paddingTop = 6
+            ratingsBlock.paddingBottom = 12
+            ratingsBlock.paddingLeft = 6
+            ratingsBlock.paddingRight = 6
+            ratingsBlock.width = 300
+            ratingsBlock.autoHeight = true
+            
+            local warmthBlock = ratingsBlock:createBlock({ id = tes3ui.registerID("Ashfall:ratings_warmthBlock") })
+            warmthBlock.flowDirection = "left_to_right"
+            warmthBlock.widthProportional = 1.0
+            warmthBlock.childAlignX  = 0.5
+            warmthBlock.autoHeight = true
+            
+            local warmthHeader = warmthBlock:createLabel({ id = tes3ui.registerID("Ashfall:ratings_warmthHeader"), text = "Warmth: " })
+            quickFormat(warmthHeader)
+            --warmthHeader.color = tes3ui.getPalette("header_color")
+            
+            local warmth = " " .. getWarmthRating( calculateItemWarmth( e.object, armorSlotDict[e.object.slot], armorClothingData.armorData, armorWarmthCache ) )
+            local warmthValue = warmthBlock:createLabel({ id = tes3ui.registerID("Ashfall:ratings_warmthValue"), text = warmth })
+            warmthValue.autoHeight = true
+            warmthValue.autoWidth = true
+            
+            local coverageBlock = ratingsBlock:createBlock({ id = tes3ui.registerID("Ashfall:ratings_coverageBlock") })
+            coverageBlock.flowDirection = "left_to_right"
+            coverageBlock.widthProportional = 1.0
+            coverageBlock.childAlignX  = 0.5
+            coverageBlock.autoHeight = true
+            
+            local coverageHeader = coverageBlock:createLabel({ id = tes3ui.registerID("Ashfall:ratings_coverageHeader"), text = "Coverage: " })
+            quickFormat(coverageHeader)
+            --coverageHeader.color = tes3ui.getPalette("header_color")
+            
+            local coverage = " " .. getCoverageRating( calculateItemCoverage( e.object, armorSlotDict[e.object.slot], armorClothingData.armorData, armorCoverageCache ) )
+            local coverageValue = coverageBlock:createLabel({ id = tes3ui.registerID("Ashfall:ratings_coverageValue"), text = coverage })
+            coverageValue.autoHeight = true
+            coverageValue.autoWidth = true            
+            
+            
+            ratingsBlock:updateLayout()
+        end
+    end
+end
 
 event.register("unequipped", calculate)
 event.register("equipped", calculateEquipped)
 event.register("Ashfall:dataLoaded", calculate)
 
-
+event.register("uiObjectTooltip", insertRatings )
 
 return this

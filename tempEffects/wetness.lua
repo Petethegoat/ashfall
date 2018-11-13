@@ -8,7 +8,7 @@ local common = require("mer.ashfall.common")
 --How much rain and thunder increase wetness per game hour (without armor
 local rainEffect = 120
 local thunderEffect = 160
-local maxDryingEffect = 50 --dry per hour at max heat
+local maxDryingEffect = 75 --dry per hour at max heat
 
 --Boundaries for wetEffects
 this.dampLevel = common.wetnessValues.damp.min

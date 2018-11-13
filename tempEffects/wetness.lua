@@ -29,7 +29,7 @@ local lastY
 local isSheltered
 
 local function checkForShelter()
-	local newPlayerPos = tes3.getMobilePlayer().position
+	local newPlayerPos = tes3.mobilePlayer.position
 	local newX = math.floor(newPlayerPos.x)
 	local newY = math.floor(newPlayerPos.y)
 	

@@ -108,8 +108,7 @@ local function updateArmorValues()
     
     for slotName, armorSlot in pairs(tes3.armorSlot) do
         local armorStack = tes3.getEquippedItem({ actor = tes3.player, objectType = tes3.objectType.armor, slot = armorSlot })
-        if armorStack 
-        and armorSlot ~= tes3.armorSlot.shield 
+        if armorStack and armorSlot ~= tes3.armorSlot.shield 
         then
             local itemWarmth = calculateItemWarmth( armorStack, slotName, armorClothingData.armorData, armorWarmthCache )
             local itemCoverage = calculateItemCoverage(  armorStack, slotName, armorClothingData.armorData, armorCoverageCache )
@@ -141,11 +140,12 @@ local function updateClothingValues()
     
     for slotName, clothingSlot in pairs(tes3.clothingSlot) do
         local clothingStack = tes3.getEquippedItem({ actor = tes3.player, objectType = tes3.objectType.clothing, slot = clothingSlot })
-        if  clothingStack 
-        and clothingSlot ~= tes3.clothingSlot.ring 
-        and clothingSlot ~= tes3.clothingSlot.amulet
-        and clothingSlot ~= tes3.clothingSlot.belt 
-        then
+        local isValidClothing = clothingStack  
+            and clothingSlot ~= tes3.clothingSlot.ring  
+            and clothingSlot ~= tes3.clothingSlot.amulet 
+            and clothingSlot ~= tes3.clothingSlot.belt 
+
+        if isValidClothing then
             local itemWarmth = calculateItemWarmth( clothingStack, slotName, armorClothingData.clothingData, clothingWarmthCache )
             local itemCoverage = calculateItemCoverage(  clothingStack, slotName, armorClothingData.clothingData, clothingCoverageCache )
             --update Cache
@@ -162,7 +162,6 @@ local function updateClothingValues()
     --Update temp
     common.data.clothingTemp = totalWarmth
     common.data.clothingCoverage = totalCoverage
-    
     --For player to see
     common.data.clothingTempRating = totalWarmth * armorClothingData.warmthRatingMultiplier
     common.data.clothingCoverageRating =  totalCoverage * armorClothingData.coverageRatingMultiplier

@@ -18,10 +18,10 @@ local function onAttack()
 	local dist = playerPos:distance(result.intersection)
 			
 
-	local weapon = tes3.getMobilePlayer().readiedWeapon
+	local weapon = tes3.mobilePlayer.readiedWeapon
 	if not weapon then return end
-	local swingType = tes3.getMobilePlayer().actionData.attackDirection
-	local swingStrength = tes3.getMobilePlayer().actionData.attackSwing
+	local swingType = tes3.mobilePlayer.actionData.attackDirection
+	local swingStrength = tes3.mobilePlayer.actionData.attackSwing
 	
 	--If attacking the same target, accumulate swings
 	if lastRef == targetRef then

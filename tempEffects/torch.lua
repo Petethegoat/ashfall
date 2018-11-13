@@ -7,7 +7,7 @@ local this = {}
 local maxHeat = 15
 
 function this.calculateTorchTemp()
-    local torchStack = tes3.getMobilePlayer().torchSlot
+    local torchStack = tes3.mobilePlayer.torchSlot
     if torchStack then
         local maxTime = torchStack.object.time
         local currentTime = torchStack.object:getTimeLeft(torchStack) 

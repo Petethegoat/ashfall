@@ -2,14 +2,17 @@ local skillModule = include("OtherSkills.skillModule")
 
 
 local lastRef
---Set to true if you want to chop trees in towns
+----CONFIGS-----------------------------------------
+--Set to true if you want to chop trees in towns----
 local bypassIllegal = true
+--How close the tree needs to be to activate--------
+local lookDistance = 230
+----------------------------------------------------
 
 --How many swings required to collect wood. Randomised again after each harvest
 local swingsNeeded
 local swings = swings or 0
---How close the tree needs to be to activate
-local lookDistance = 230
+
 
 local function onAttack(e)
 --[[

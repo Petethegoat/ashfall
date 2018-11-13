@@ -15,13 +15,23 @@
 local this = {}
 
 local common = require("mer.ashfall.common")
---Data
 local armorClothingData = require ("mer.ashfall.tempEffects.armorClothingData")
---Caches
+--Cache values for faster processing
 local armorWarmthCache = mwse.loadConfig("ashfall/armor_warmth") or {}
 local clothingWarmthCache = mwse.loadConfig("ashfall/clothing_warmth") or {}
 local armorCoverageCache = mwse.loadConfig("ashfall/armor_coverage") or {}
 local clothingCoverageCache = mwse.loadConfig("ashfall/clothing_coverage") or {}
+
+
+--Get ratings from raw values for individual items
+local function getWarmthRating( rawValue )
+    return math.floor( rawValue * armorClothingData.warmthRatingMultiplier )
+end
+
+local function getCoverageRating( rawValue )
+    return math.floor( rawValue * armorClothingData.coverageRatingMultiplier )
+end
+
 
 local function calculateItemWarmth( itemStack, slotName, thisData, cache )
     local itemId = itemStack.object.id
@@ -76,6 +86,7 @@ local function calculateItemCoverage( itemStack, slotName, data, cache )
                 break
             end
         end
+        --No pattern, default
         if not thisCoverage then
             thisCoverage = data.defaultCoverage
         end
@@ -90,6 +101,8 @@ end
 
 
 local function updateArmorValues()
+    if not common.data then return end
+    
     local totalWarmth = 0
     local totalCoverage = 0.0
     
@@ -112,18 +125,17 @@ local function updateArmorValues()
     mwse.saveConfig( "ashfall/armor_warmth", armorWarmthCache )
     mwse.saveConfig( "ashfall/armor_coverage", armorCoverageCache )
     --Update temp
-
-    
     common.data.armorTemp = totalWarmth
     common.data.armorCoverage = totalCoverage
     
-    --For player to see
+    --Player-visible ratings
     common.data.armorTempRating = totalWarmth * armorClothingData.warmthRatingMultiplier
     common.data.armorCoverageRating = totalCoverage * armorClothingData.coverageRatingMultiplier
     
 end
 
 local function updateClothingValues()
+    if not common.data then return end
     local totalWarmth = 0
     local totalCoverage = 0.0
     
@@ -165,11 +177,15 @@ local function calculateEquipped(e)
     updateArmorValues()
     updateClothingValues()
     if e.item.objectType == tes3.objectType.armor then
-        tes3.messageBox("Warmth: " .. ( ( armorWarmthCache[e.item.id] or 0)  * armorClothingData.warmthRatingMultiplier ) 
-            .. ", Coverage: " .. ( ( armorCoverageCache[e.item.id] or 0 ) * armorClothingData.coverageRatingMultiplier) )
+        tes3.messageBox(
+            "Warmth: " .. getWarmthRating( armorWarmthCache[e.item.id] or 0) 
+            .. ", Coverage: " .. getCoverageRating( ( armorCoverageCache[e.item.id] or 0 ) ) 
+        )
     elseif e.item.objectType == tes3.objectType.clothing then
-        tes3.messageBox("Warmth: " .. ( ( clothingWarmthCache[e.item.id] or 0)  * armorClothingData.warmthRatingMultiplier ) 
-            .. ", Coverage: " .. ( ( clothingCoverageCache[e.item.id] or 0 ) * armorClothingData.coverageRatingMultiplier) )
+        tes3.messageBox(
+            "Warmth: " .. getWarmthRating( ( clothingWarmthCache[e.item.id] or 0 ) )
+            .. ", Coverage: " .. getCoverageRating( ( clothingCoverageCache[e.item.id] or 0 ) ) 
+        )
     end
 end
 

@@ -1,43 +1,48 @@
 local common = require("mer.ashfall.common")
 
+local coldRestLimit = common.conditionValues.veryCold.min
+local hotRestLimit = common.conditionValues.veryHot.max
 
-local function checkSleeping()
-    --Wake if sleeping and cold
-	if common.data.tempLimit < common.conditionValues.veryCold.max then
-		if tes3.menuMode() then
-			tes3.runLegacyScript({ command = "WakeUpPC" })
-			tes3.messageBox({ message = "It is too cold to sleep, you must find shelter!", buttons = {"Okay"} })
-		end
-	end
-end
+local interruptText = ""
+local isScripted
 
-local allowRest
-local scripted
-
-local function checkCanSleep(e)
-   allowRest = e.allowRest
-   scripted = e.scripted
-end
-
---Prevent sleep if environment is too cold
-local function changeRestMenu (e)
-    local temp = common.data.tempLimit
-    
+local function setRestValues(e)
     --scripted means the player has activated a bed or bedroll
-    if scripted then
+    if e.scripted then
+        isScripted = true
+    else
+        isScripted = false
+    end
+    --Set interrupt text
+    local tempText
+    local temp = common.data.tempLimit
+	if temp <= 0 then
+        tempText = "cold"
+    elseif temp >= 0 then
+        tempText = "hot"
+    end
+    local restText
+    if e.allowRest then
+        restText = "rest"
+    else
+        restText = "wait"
+    end     
+    interruptText = "It is too " .. tempText .. " to " .. restText .. ". You must find shelter."
+end
+
+
+
+--Prevent sleep if ENVIRONMENT is too cold/hot
+local function activateRestMenu (e)
+    local temp = common.data.tempLimit
+    if isScripted then
         temp = temp + common.bedTemp
     end
-        
-    --If it's too cold, prevent player from sleeping
-	if temp < common.conditionValues.veryCold.max then
+    if temp < coldRestLimit or temp > hotRestLimit then
         local restMenu = e.element
-        
         local labelText = restMenu:findChild( tes3ui.registerID("MenuRestWait_label_text") )
-        if allowRest then
-            labelText.text = "It is too cold to rest. You must find shelter."
-        else
-            labelText.text = "It is too cold to wait. You must find shelter."
-        end
+        labelText.text = interruptText
+
         
         local scrollbar = restMenu:findChild( tes3ui.registerID("MenuRestWait_scrollbar") )
         scrollbar.visible = false
@@ -56,13 +61,27 @@ local function changeRestMenu (e)
 	end
 end
 
+--Wake up if sleeping and PLAYER is too cold/hot
+local function checkSleeping()
+    if tes3.menuMode() then
+        local temp = common.data.tempPlayer
+        if isScripted then
+            temp = temp + common.bedTemp
+        end
+        if temp < coldRestLimit or temp > hotRestLimit then
+            tes3.runLegacyScript({ command = "WakeUpPC" })
+            tes3.messageBox({ message = interruptText, buttons = { "Okay" } })
+		end
+	end
+end
+
 local registerOnce
 local function dataLoaded()
     timer.start({ type = timer.game, duration = 0.01, iterations = -1, callback = checkSleeping })
     if not registerOnce then
         registerOnce = true
-        event.register("uiActivated", changeRestMenu, { filter = "MenuRestWait" })
-        event.register("uiShowRestMenu", checkCanSleep )
+        event.register("uiActivated", activateRestMenu, { filter = "MenuRestWait" })
+        event.register("uiShowRestMenu", setRestValues )
     end
 end
 event.register("Ashfall:dataLoaded", dataLoaded )

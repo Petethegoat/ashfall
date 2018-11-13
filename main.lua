@@ -11,7 +11,11 @@ local function initialized()
 		event.register("loaded", onLoaded)
 		-- load modules
 		require ("mer.ashfall.common")
-		require ("mer.ashfall.tempTimer")
+        
+        --temp effect modules
+		require ("mer.ashfall.tempEffects.tempTimer")
+        require("mer.ashfall.tempEffects.armorClothing")
+        
 		
 		require("mer.ashfall.harvest_wood")
 		require("mer.ashfall.drinking")
@@ -20,7 +24,7 @@ local function initialized()
 		require("mer.ashfall.activators.bedroll")
         require("mer.ashfall.sleepController")   
 		
-		print("Initialized Ashfall")
+		mwse.log("[Ashfall: INFO] Initialized Ashfall")
 	end
 end
 

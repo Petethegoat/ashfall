@@ -14,12 +14,10 @@ local leftTempLimitBar
 local rightTempPlayerBar
 local rightTempLimitBar
 
-
-
 local wetnessBar
 
 
-function this.updateUI()
+function this.updateHUD()
 	if not common.data then return end
 	if outerFrame and leftTempPlayerBar and conditionLabel then
 		local tempPlayer = common.data.tempPlayer or 0
@@ -77,7 +75,7 @@ local function quickFormat(element, padding)
 end
 
 
-local function logUI(e)
+local function createHUD(e)
 
 	local tempBarWidth = 70
 	local tempBarHeight = 10
@@ -209,6 +207,6 @@ local function logUI(e)
 						rightTempLimitBar.width = tempBarWidth
 
 end
-event.register("uiCreated", logUI, { filter = "MenuMulti" })
+event.register("uiCreated", createHUD, { filter = "MenuMulti" })
 
 return this

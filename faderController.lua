@@ -4,7 +4,6 @@ this.faders = {}
 local function faderSetup()
 	this.faders.freezing = tes3fader.new()
 	this.faders.freezing:setTexture("Textures/survival/faders/freeze_static.dds")
-	--faders.freezing:setTexture("Textures\\mmm2018\\overlay\\apocryphaFader.dds")
 	this.faders.freezing:setColor({ color = { 0.5, 0.5, 0.5 }, flag = false })
 
 	for _, fader in pairs( this.faders ) do

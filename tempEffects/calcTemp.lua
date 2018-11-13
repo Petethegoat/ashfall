@@ -58,6 +58,8 @@ function this.calculateTemp(timerInterval)
 	local frostDamTemp = common.data.frostDamTemp or 0
 	local clothingTemp = common.data.clothingTemp or 0
 	local armorTemp = common.data.armorTemp or 0
+    local bedTemp = common.data.bedTemp or 0
+    local tentTemp = common.data.tentTemp or 0
 
 	--Player Effects -- multipliers
 	local hungerEffect = common.data.hungerEffect or 1
@@ -73,27 +75,34 @@ function this.calculateTemp(timerInterval)
 		regionTemp = interiorTemp
 		timeTemp = 0
 	end
-	tempRaw = ( 	timeTemp
-				+ 	regionTemp
-				+	wetTemp
-                +   torchTemp
-				+	fireTemp
-				+	fireDamTemp
-				+	frostDamTemp
-				+	clothingTemp
-				+	armorTemp )
+	tempRaw = ( 	
+        timeTemp + regionTemp
+                 + wetTemp
+                 + torchTemp
+                 + fireTemp
+                 + fireDamTemp
+                 + frostDamTemp
+                 + clothingTemp
+                 + armorTemp
+                 + bedTemp
+                 + tentTemp
+    )
 	--cold exclusive effects
 	if tempRaw < 0 then
-		tempReal = ( tempRaw * hungerEffect 
-							 * raceColdEffect
-							 * resistFrostEffect
-							 * alcoholEffect )
+		tempReal = ( 
+            tempRaw * hungerEffect 
+                    * raceColdEffect
+                    * resistFrostEffect
+                    * alcoholEffect 
+        )
 	--hot exclusive effects
 	elseif tempRaw > 0 then
-		tempReal = ( tempRaw * thirstEffect
-							 * raceHotEffect
-							 * resistFireEffect
-							 * alcoholEffect )
+		tempReal = ( 
+            tempRaw * thirstEffect
+                    * raceHotEffect
+                    * resistFireEffect
+                    * alcoholEffect 
+        )
 	else
 		tempReal = tempRaw
 	end 

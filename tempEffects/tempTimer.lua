@@ -7,7 +7,6 @@ local wetness = require("mer.ashfall.tempEffects.wetness")
 local condition = require("mer.ashfall.conditions")
 local wetCondition = require("mer.ashfall.wetCondition")
 local torch = require("mer.ashfall.tempEffects.torch")
-local armorClothing = require("mer.ashfall.tempEffects.armorClothing")
 
 local hud = require("mer.ashfall.ui.hud")
 
@@ -25,7 +24,7 @@ local function callUpdates()
 		condition.updateConditionState()
 		wetCondition.updateWetConditionState()
 	end
-	hud.updateUI()			
+	hud.updateHUD()			
 end
 
 local function dataLoaded()
@@ -33,7 +32,6 @@ local function dataLoaded()
 	timer.delayOneFrame(function()
 		timer.start({duration = scriptInterval, callback = callUpdates, type = timer.game, iterations = -1})
 	end)
-	print("tempTimer.lua loaded successfully")
 end
 
 --Register functions

@@ -42,7 +42,7 @@ this.conditionValues = {
     veryHot 	= { text = "Very Hot"    , min = 60   , max = 80	, spell = "fw_cond_very_hot"  } ,
     hot 		= { text = "Hot"         , min = 40   , max = 60  	, spell = "fw_cond_hot"       } ,
     warm 		= { text = "Warm"        , min = 20   , max = 40	, spell = "fw_cond_warm"      } ,
-    comfortable = { text = "Comfortable" , min = -20  , max = 20	, spell = "NONE"               } ,
+    comfortable = { text = "Comfortable" , min = -20  , max = 20	, spell = nil               } ,
     chilly 		= { text = "Chilly"      , min = -40  , max = -20	, spell = "fw_cond_chilly"    } ,
     cold 		= { text = "Cold"        , min = -60  , max = -40	, spell = "fw_cond_cold"      } ,
     veryCold 	= { text = "Very Cold"   , min = -80  , max = -60	, spell = "fw_cond_very_cold" } ,
@@ -79,7 +79,7 @@ end
 local function onLoaded()
 	--Persistent data stored on player reference 
 	-- ensure data table exists
-	local data = tes3.getPlayerRef().data
+	local data = tes3.player.data
 	data.Ashfall = data.Ashfall or {}
 	-- create a public shortcut
 	this.data = data.Ashfall

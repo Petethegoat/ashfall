@@ -1,7 +1,7 @@
 local this = {}
 local common = require("mer.ashfall.common")
 
-
+--Generic Tooltip with header and description
 local function createTooltip(thisHeader, thisLabel)
     local tooltip = tes3ui.createTooltipMenu()
     
@@ -15,18 +15,18 @@ local function createTooltip(thisHeader, thisLabel)
 	outerBlock.autoHeight = true    
     
     local headerText = thisHeader
-    local header = outerBlock:createLabel({ id = tes3ui.registerID("Ashfall:temperatureIndicator_header"), text = headerText })
-    header.autoHeight = true
-    header.width = 285
-    header.color = tes3ui.getPalette("header_color")
-    header.wrapText = true
+    local headerLabel = outerBlock:createLabel({ id = tes3ui.registerID("Ashfall:temperatureIndicator_header"), text = headerText })
+    headerLabel.autoHeight = true
+    headerLabel.width = 285
+    headerLabel.color = tes3ui.getPalette("header_color")
+    headerLabel.wrapText = true
     --header.justifyText = "center"
     
-    local labelText = thisLabel
-    local label = outerBlock:createLabel({ id = tes3ui.registerID("Ashfall:temperatureIndicator_label"), text = labelText })
-    label.autoHeight = true
-    label.width = 285
-    label.wrapText = true   
+    local descriptionText = thisLabel
+    local descriptionLabel = outerBlock:createLabel({ id = tes3ui.registerID("Ashfall:temperatureIndicator_description"), text = descriptionText })
+    descriptionLabel.autoHeight = true
+    descriptionLabel.width = 285
+    descriptionLabel.wrapText = true   
     
     tooltip:updateLayout()
 end

@@ -8,11 +8,7 @@ local isScripted
 
 local function setRestValues(e)
     --scripted means the player has activated a bed or bedroll
-    if e.scripted then
-        isScripted = true
-    else
-        isScripted = false
-    end
+    isScripted = e.scripted
     --Set interrupt text
     local tempText
     local temp = common.data.tempLimit
@@ -33,41 +29,37 @@ end
 
 
 --Prevent sleep if ENVIRONMENT is too cold/hot
+--We do this by tapping into the Rest Menu,
+--replacing the text and removing rest/wait buttons
 local function activateRestMenu (e)
-    local temp = common.data.tempLimit
-    if isScripted then
-        temp = temp + common.bedTemp
-    end
+    local temp = common.data.tempLimit + ( isScripted and common.bedTemp or 0 )
+    
     if temp < coldRestLimit or temp > hotRestLimit then
         local restMenu = e.element
+        
         local labelText = restMenu:findChild( tes3ui.registerID("MenuRestWait_label_text") )
         labelText.text = interruptText
+        
+        local hiddenList = {}
+        hiddenList.scrollbar = restMenu:findChild( tes3ui.registerID("MenuRestWait_scrollbar") )
+        hiddenList.hourText = restMenu:findChild( tes3ui.registerID("MenuRestWait_hour_text") )
+        hiddenList.hourActualText = hiddenList.hourText.parent.children[2]
+        hiddenList.untilHealed = restMenu:findChild( tes3ui.registerID("MenuRestWait_untilhealed_button") )
+        hiddenList.wait = restMenu:findChild( tes3ui.registerID("MenuRestWait_wait_button") )
+        hiddenList.rest = restMenu:findChild( tes3ui.registerID("MenuRestWait_rest_button") )
 
-        
-        local scrollbar = restMenu:findChild( tes3ui.registerID("MenuRestWait_scrollbar") )
-        scrollbar.visible = false
-        local hourText = restMenu:findChild( tes3ui.registerID("MenuRestWait_hour_text") )
-        hourText.visible = false
-        local hourActualText = hourText.parent.children[2]
-        hourActualText.visible = false
-        local untilHealed = restMenu:findChild( tes3ui.registerID("MenuRestWait_untilhealed_button") )
-        untilHealed.visible = false
-        local wait = restMenu:findChild( tes3ui.registerID("MenuRestWait_wait_button") )
-        wait.visible = false
-        local rest = restMenu:findChild( tes3ui.registerID("MenuRestWait_rest_button") )
-        rest.visible = false
-        
+        for _, element in pairs(hiddenList) do
+            element.visible = false
+        end
         restMenu:updateLayout()
 	end
 end
 
---Wake up if sleeping and PLAYER is too cold/hot
+--Wake up if sleeping and ENVIRONMENT is too cold/hot
 local function checkSleeping()
     if tes3.menuMode() then
-        local temp = common.data.tempPlayer
-        if isScripted then
-            temp = temp + common.bedTemp
-        end
+        local temp = common.data.tempLimit + ( isScripted and common.bedTemp or 0 )
+        
         if temp < coldRestLimit or temp > hotRestLimit then
             tes3.runLegacyScript({ command = "WakeUpPC" })
             tes3.messageBox({ message = interruptText, buttons = { "Okay" } })

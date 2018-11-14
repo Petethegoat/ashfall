@@ -10,15 +10,17 @@ local common = require("mer.ashfall.common")
 
 -------------------------------------CONFIG VALUES-------------------------------------
 
---Determines how fast tempLimit catches up to tempReal (diff per second)
-local limitRate = 70
+--Determines how fast tempLimit catches up to tempReal
+local limitRate = 60
 
---Determines how fast tempPlayer catches up to tempLimit (diff per GameHour)
-local playerRate = 1.0
+--Determines how fast tempPlayer catches up to tempLimit
+local playerRate = 1
 local minPlayerDiff = 60    
 
 --"Region" temp when inside
-local interiorTemp = 5
+local intRegionMultiplier = 0.1
+local intTimeMultiplier = 0.1
+local interiorBaseTemp = 10
 ----------------------------------------------------------------------------------------
 
 --temperature variables
@@ -28,7 +30,8 @@ local tempLimit
 local tempPlayer
 
 --How slowly changes during sleep
-local sleepMulti = 0.7 
+local sleepMulti = 0.7
+
 --GameHour variables
 local gameHour
 
@@ -60,24 +63,29 @@ function this.calculateTemp(timerInterval)
 	local armorTemp = common.data.armorTemp or 0
     local bedTemp = common.data.bedTemp or 0
     local tentTemp = common.data.tentTemp or 0
+    local furTemp = common.data.furTemp or 0
 
 	--Player Effects -- multipliers
 	local hungerEffect = common.data.hungerEffect or 1
 	local thirstEffect = common.data.thirstEffect or 1
-	local raceColdEffect = common.data.raceColdEffect or 1
-	local raceHotEffect = common.data.raceHotEffect or 1
 	local resistFrostEffect = common.data.ResistFrostEffect or 1
 	local resistFireEffect = common.data.resistFireEffect or 1
 	local alcoholEffect = common.data.alcoholEffect or 1
+    local vampireColdEffect = common.data.vampireColdEffect or 1
+    local vampireWarmEffect = common.data.vampireWarmEffect or 1
 
+    --Inside: region/time have significantly reduced effect, temp hovers around comfortable
 	local cell = tes3.getPlayerCell()
 	if cell.isInterior then
-		regionTemp = interiorTemp
-		timeTemp = 0
+        tempRaw = interiorBaseTemp 
+                + ( regionTemp * intRegionMultiplier )
+                + ( timeTemp * intTimeMultiplier )
+    else
+        tempRaw = regionTemp + timeTemp
 	end
-	tempRaw = ( 	
-        timeTemp + regionTemp
-                 + wetTemp
+
+    tempReal = (
+        tempRaw  + wetTemp
                  + torchTemp
                  + fireTemp
                  + fireDamTemp
@@ -86,47 +94,40 @@ function this.calculateTemp(timerInterval)
                  + armorTemp
                  + bedTemp
                  + tentTemp
+                 + furTemp
     )
+    common.data.tempRaw = tempRaw
 	--cold exclusive effects
-	if tempRaw < 0 then
+	if tempReal < 0 then
 		tempReal = ( 
-            tempRaw * hungerEffect 
-                    * raceColdEffect
-                    * resistFrostEffect
-                    * alcoholEffect 
+            tempReal * hungerEffect 
+                     * resistFrostEffect
+                     * alcoholEffect 
+                     * vampireColdEffect
         )
 	--hot exclusive effects
-	elseif tempRaw > 0 then
+	elseif tempReal > 0 then
 		tempReal = ( 
-            tempRaw * thirstEffect
-                    * raceHotEffect
+            tempReal * thirstEffect
                     * resistFireEffect
                     * alcoholEffect 
+                    * vampireWarmEffect
         )
-	else
-		tempReal = tempRaw
-	end 
-	
+	end
+    common.data.tempReal = tempReal
 	--[[------------------------------------
 	Calculate tempLimit
             - "Environment Temp"
 			- Moves towards tempReal
 			- Synced to GameHour
 	]]-----------------------------------
-	tempLimit = common.data.tempLimit or 0
 	local limitDiff = math.abs( tempReal - tempLimit )
-    --limitChange: how much to move towards tempReal this call
 	local limitChange = limitDiff * limitRate * timerInterval
+    limitChange = math.clamp( limitChange, 0, limitDiff )
 
-	--Prevent overshoot: set to difference if the change is greater than difference
-	if math.abs(limitChange) > limitDiff then
-		limitChange = limitChange < 0 and -limitDiff or limitDiff 
-	end
-	
-	tempLimit = tempLimit < tempReal and tempLimit + limitChange or tempLimit - limitChange
+	tempLimit = tempLimit + ( ( tempLimit < tempReal ) and limitChange or -limitChange )
 	common.data.tempLimit = tempLimit
 
-	
 	--[[------------
 	------------------------
 
@@ -136,41 +137,26 @@ function this.calculateTemp(timerInterval)
 			- Slower while sleeping
 
 	]]--------------------------------------
-	tempPlayer = common.data.tempPlayer or 0
-	local playerDiff = tempLimit - tempPlayer
-	
-	--Change at least as much as minPlayerDiff
-	local diffEffect
-	if 0 < playerDiff and playerDiff < minPlayerDiff then
-		diffEffect = minPlayerDiff
-	elseif -minPlayerDiff < playerDiff and playerDiff < 0  then
-		diffEffect = -minPlayerDiff
-	else
-		diffEffect = playerDiff
-	end
+	local playerDiff = math.abs( tempLimit - tempPlayer )
+	playerDiff = ( playerDiff < minPlayerDiff ) and minPlayerDiff or playerDiff
 
-	local playerChange = diffEffect * playerRate * timerInterval
+	local playerChange = playerDiff * playerRate * timerInterval
     
     if tes3.menuMode() then
         playerChange = playerChange * sleepMulti
     end
-	--Warmth slowed by wetness: 0.5 speed at 100 wetness
+    
+	--Warmth rate 0.5x at 100 wetness. Cooling rate 1.5x at 100% wetness
 	local wetness = common.data.wetness or 0
-	local wetMulti = math.remap( wetness, 0, 100, 1.0, 0.5 )
-	if playerChange > 0 then
-		playerChange = playerChange * wetMulti
-	end
-	--and cooling down quickened by wetness: 1.5 speed at 100 wetness
-	wetMulti = math.remap( wetness, 0, 100, 1.0, 1.5 )
-	if playerChange < 0 then
-		playerChange = playerChange * wetMulti
-	end	
-	
+    local wetTempEffect = ( tempPlayer < tempLimit ) and 0.5 or 1.5
+	local wetMulti = math.remap( wetness, 0, 100, 1.0, wetTempEffect )
+	playerChange = playerChange * wetMulti
+    
 	--prevent overshoot
-	playerChange = math.abs(playerChange) > math.abs(playerDiff) and playerDiff or playerChange
-	
-	tempPlayer = tempPlayer + playerChange
-	--set player temp
+    playerChange = math.clamp( playerChange, 0, playerDiff )
+    
+    --set player temp
+	tempPlayer = tempPlayer + ( ( tempPlayer < tempLimit) and playerChange or -playerChange )
 	common.data.tempPlayer = tempPlayer
     -----------------------------------------------
 	

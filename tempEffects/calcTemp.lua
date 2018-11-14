@@ -19,8 +19,9 @@ local minPlayerDiff = 60
 
 --"Region" temp when inside
 local intRegionMultiplier = 0.1
-local intTimeMultiplier = 0.1
-local interiorBaseTemp = 10
+local intTimeMultiplier = 0.3
+local interiorBaseTemp = 0
+local exteriorBaseTemp = 0
 ----------------------------------------------------------------------------------------
 
 --temperature variables
@@ -81,7 +82,7 @@ function this.calculateTemp(timerInterval)
                 + ( regionTemp * intRegionMultiplier )
                 + ( timeTemp * intTimeMultiplier )
     else
-        tempRaw = regionTemp + timeTemp
+        tempRaw = exteriorBaseTemp + regionTemp + timeTemp
 	end
 
     tempReal = (

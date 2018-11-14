@@ -14,7 +14,7 @@ function this.calculateRaceEffects()
     
     common.data.furTemp = 0
     local raceID = tes3.player.object.baseObject.race.id
-    if string:lower(raceID) == "khajiit" then
+    if string.lower(raceID) == "khajiit" then
         common.data.furTemp = khajiitWarmth    
     end
     

@@ -8,6 +8,7 @@ local condition = require("mer.ashfall.conditions")
 local wetCondition = require("mer.ashfall.wetCondition")
 local torch = require("mer.ashfall.tempEffects.torch")
 local raceEffects = require("mer.ashfall.tempEffects.raceEffects")
+local fireEffect = require("mer.ashfall.tempEffects.fireEffect")
 
 local frostBreath = require("mer.ashfall.frostBreath")
 local hud = require("mer.ashfall.ui.hud")
@@ -22,11 +23,12 @@ local function callUpdates()
     
     --For heavy scripts and those that don't need to be run while sleeping
 	if tes3.menuMode() == false then
-		frostBreath.doFrostBreath(scriptInterval)
+		frostBreath.doFrostBreath()
         raceEffects.calculateRaceEffects()
         torch.calculateTorchTemp()
 		condition.updateConditionState()
 		wetCondition.updateWetConditionState()
+		fireEffect.calculateFireEffect()
 	end
 	hud.updateHUD()			
 end

@@ -15,7 +15,7 @@
 local this = {}
 
 local common = require("mer.ashfall.common")
-local ratingsCommon = require ("mer.ashfall.tempEffects.ratings.armorClothingCommon")
+local ratingsCommon = require ("mer.ashfall.tempEffects.ratings.ratingsCommon")
 local armorClothingData = ratingsCommon.data
 local ui = require("mer.ashfall.tempEffects.ratings.ratingUI")
 
@@ -32,8 +32,7 @@ local function updateArmorValues()
     
     for slotName, armorSlot in pairs(tes3.armorSlot) do
         local armorStack = tes3.getEquippedItem({ actor = tes3.player, objectType = tes3.objectType.armor, slot = armorSlot })
-        if armorStack and ratingsCommon
-    .isValidArmorSlot(armorSlot) then
+        if armorStack and ratingsCommon.isValidArmorSlot(armorSlot) then
             local itemWarmth = ratingsCommon.calculateItemValue( armorStack.object, slotName, armorClothingData.armorData.warmth, armorWarmthCache )
             local itemCoverage = ratingsCommon.calculateItemValue(  armorStack.object, slotName, armorClothingData.armorData.coverage, armorCoverageCache )
             --update Cache

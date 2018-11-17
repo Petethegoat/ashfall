@@ -12,7 +12,6 @@ local coldLevelNeeded = common.conditionValues.veryCold.max
 local function addBreath(node, x, y, z)
     if not node:getObjectByName("smokepuffs.nif") then
         local smokepuffs = tes3.loadMesh("ashfall\\smokepuffs.nif"):clone()
-        tes3.messageBox("Adding breath")
         node:attachChild(smokepuffs, true)
         smokepuffs.translation.x = x
         smokepuffs.translation.y = y
@@ -23,13 +22,12 @@ end
 
 local function removeBreath(node)
     if node:getObjectByName("smokepuffs.nif") then
-        tes3.messageBox("Removing puffs")
         node:detachChild(node:getObjectByName("smokepuffs.nif"), true)
     end
 end
 
 
-function this.doFrostBreath(scriptInterval)
+function this.doFrostBreath()
     local temp = common.data.tempRaw
     local isCold = temp < coldLevelNeeded  
     for ref in tes3.getPlayerCell():iterateReferences(tes3.objectType.npc) do

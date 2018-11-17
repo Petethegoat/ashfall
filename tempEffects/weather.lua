@@ -49,6 +49,7 @@ local regionValues = {
 }
 
 --Keyword search in interior names for cold caves etc
+local defaultWeatherTemp = 5
 local interiorValues = {
 	[" Sewers"] 	= -5,
 	[" Eggmine"] 	= -5,
@@ -94,7 +95,7 @@ end
 
 local function cellChanged(e)
 	updateWeather(tes3.getCurrentWeather())
-	local intWeatherEffect = 0
+	local intWeatherEffect = defaultWeatherTemp
 	tes3.messageBox("cell ID: %s", e.cell.id)
 	for key, val in pairs(interiorValues) do
 		if string.find(e.cell.id, key) then
@@ -108,7 +109,7 @@ end
 local registerOnce
 local function dataLoaded()
 	updateWeather(tes3.getCurrentWeather())
-	common.data.weatherTemp = 0
+	common.data.weatherTemp = intWeatherEffect
     if not registerOnce then
         registerOnce = true
         event.register("cellChanged", cellChanged)

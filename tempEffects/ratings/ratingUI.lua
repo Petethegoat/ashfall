@@ -1,6 +1,6 @@
 local this = {}
 local common = require("mer.ashfall.common")
-local ratingsCommon = require("mer.ashfall.tempEffects.ratings.armorClothingCommon")
+local ratingsCommon = require("mer.ashfall.tempEffects.ratings.ratingsCommon")
 local armorClothingData = ratingsCommon.data
 local armorWarmthCache = ratingsCommon.armorWarmthCache
 local clothingWarmthCache = ratingsCommon.clothingWarmthCache
@@ -18,10 +18,8 @@ end
     Create warmth and coverage ratings inside the Character Box in the inventory menu
 ]]
 function this.createArmorRatings()
-    tes3.messageBox("Menu created")
     local inventoryMenu = tes3ui.findMenu(tes3ui.registerID("MenuInventory"))
     if not inventoryMenu then
-        tes3.messageBox("Menu doesn't exist")
         return
     end
     local characterBox = inventoryMenu:findChild(tes3ui.registerID("MenuInventory_character_box"))
@@ -53,7 +51,6 @@ end
 ]]
 function this.updateArmorRatings()
     if not common.data then return end
-    tes3.messageBox("Menu created")
     local inventoryMenu = tes3ui.findMenu(tes3ui.registerID("MenuInventory"))
     if inventoryMenu then
         local warmthLabel = inventoryMenu:findChild(tes3ui.registerID("Ashfall:WarmthRating"))

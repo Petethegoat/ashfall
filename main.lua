@@ -14,7 +14,7 @@ local function initialized()
         
         --temp effect modules
 		require ("mer.ashfall.tempEffects.tempTimer")
-        require("mer.ashfall.tempEffects.ratings.armorClothing")
+        require("mer.ashfall.tempEffects.ratings.ratingEffects")
         
 		
 		require("mer.ashfall.harvest_wood")
@@ -31,6 +31,6 @@ local function initialized()
 end
 
 --Need to initialise faders immediately
-require ("mer.ashfall.faderController")
+--require ("mer.ashfall.faderController")
 
 event.register("initialized", initialized)

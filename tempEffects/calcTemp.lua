@@ -14,13 +14,11 @@ local common = require("mer.ashfall.common")
 local limitRate = 60
 
 --Determines how fast tempPlayer catches up to tempLimit
-local playerRate = 1.5
-local minPlayerDiff = 0   
+local playerRate = 2.0
+local minPlayerDiff = 20
 
 --"Region" temp when inside
-local interiorWeatherMultiplier = 0.3
-local interiorBaseTemp = 0
-local exteriorBaseTemp = 0
+local interiorWeatherMultiplier = 0.2
 ----------------------------------------------------------------------------------------
 
 --temperature variables
@@ -78,9 +76,9 @@ function this.calculateTemp(timerInterval)
 	local cell = tes3.getPlayerCell()
 	local intWeatherEffect = common.data.intWeatherEffect or 0
 	if cell.isInterior then
-        tempRaw = interiorBaseTemp + ( weatherTemp * interiorWeatherMultiplier ) + intWeatherEffect
+        tempRaw = ( weatherTemp * interiorWeatherMultiplier ) + intWeatherEffect
     else
-        tempRaw = exteriorBaseTemp + weatherTemp
+        tempRaw =  weatherTemp
 	end
 	common.data.tempRaw = tempRaw
     tempReal = (
@@ -178,10 +176,10 @@ local function onKeyG(e)
             --    "Total Warmth = " .. ( common.data.armorTemp + common.data.clothingTemp )  
             --    .. ", Total Coverage: " .. ( common.data.armorCoverage + common.data.clothingCoverage ) 
            -- )
-			--tes3.messageBox("TempRaw: (%.2f)\ncold.max: %.2f \nTime: %s", tempRaw, common.conditionValues.veryCold.max, currentTime )
+			tes3.messageBox("TempRaw: %.2f, tempReal: %.2f, tempLimit: %.2f", tempRaw, tempReal,tempLimit )
 			--tes3.messageBox("RegionTemp: %.2f \n weatherTemp: %.2f \n WetTemp: %.2f",  common.data.regionTemp, common.data.weatherTemp, common.data.wetTemp)
-			tes3.messageBox("Armor coverage: %.2f, Clothing coverage: %.2f", common.data.armorCoverage, common.data.clothingCoverage )
-			--tes3.messageBox("Weather Temp: %.2f, int Weather: %s", common.data.weatherTemp, ( common.data.intWeatherEffect or "nil"  ))
+			--tes3.messageBox("Armor coverage: %.2f, Clothing coverage: %.2f", common.data.armorCoverage, common.data.clothingCoverage )
+			tes3.messageBox("Weather Temp: %.2f, int Weather: %s", common.data.weatherTemp, ( common.data.intWeatherEffect or "nil"  ))
 		end
     end
 end

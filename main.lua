@@ -14,7 +14,7 @@ local function initialized()
         
         --temp effect modules
 		require ("mer.ashfall.tempEffects.tempTimer")
-        require("mer.ashfall.tempEffects.armorClothing")
+        require("mer.ashfall.tempEffects.ratings.armorClothing")
         
 		
 		require("mer.ashfall.harvest_wood")
@@ -24,6 +24,8 @@ local function initialized()
 		require("mer.ashfall.activators.bedroll")
         require("mer.ashfall.sleepController")   
 		
+		require("mer.ashfall.frostbreath")
+
 		mwse.log("[Ashfall: INFO] Initialized Ashfall")
 	end
 end

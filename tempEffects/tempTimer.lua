@@ -9,6 +9,7 @@ local wetCondition = require("mer.ashfall.wetCondition")
 local torch = require("mer.ashfall.tempEffects.torch")
 local raceEffects = require("mer.ashfall.tempEffects.raceEffects")
 
+local frostBreath = require("mer.ashfall.frostBreath")
 local hud = require("mer.ashfall.ui.hud")
 
 --How often the script should run in gameTime
@@ -16,11 +17,12 @@ local scriptInterval = 0.0005
 
 local function callUpdates()
     calcTemp.calculateTemp(scriptInterval)
-	weather.calculateTimeEffect()
+	weather.calculateWeatherEffect()
 	wetness.calcaulateWetTemp(scriptInterval)
     
     --For heavy scripts and those that don't need to be run while sleeping
 	if tes3.menuMode() == false then
+		frostBreath.doFrostBreath(scriptInterval)
         raceEffects.calculateRaceEffects()
         torch.calculateTorchTemp()
 		condition.updateConditionState()

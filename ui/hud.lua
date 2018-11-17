@@ -207,6 +207,7 @@ local function createHUD(e)
 						rightTempLimitBar.width = tempBarWidth
 
 end
+
 event.register("uiCreated", createHUD, { filter = "MenuMulti" })
 
 return this

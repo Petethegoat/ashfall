@@ -14,12 +14,11 @@ local common = require("mer.ashfall.common")
 local limitRate = 60
 
 --Determines how fast tempPlayer catches up to tempLimit
-local playerRate = 1
-local minPlayerDiff = 60    
+local playerRate = 1.5
+local minPlayerDiff = 0   
 
 --"Region" temp when inside
-local intRegionMultiplier = 0.1
-local intTimeMultiplier = 0.3
+local interiorWeatherMultiplier = 0.3
 local interiorBaseTemp = 0
 local exteriorBaseTemp = 0
 ----------------------------------------------------------------------------------------
@@ -53,7 +52,7 @@ function this.calculateTemp(timerInterval)
     
     
 	--Environmental Factors -- additives
-    local timeTemp = common.data.timeTemp or 0
+    local weatherTemp = common.data.weatherTemp or 0
 	local regionTemp = common.data.regionTemp or 0
 	local wetTemp = common.data.wetTemp or 0
     local torchTemp = common.data.torchTemp or 0
@@ -77,14 +76,13 @@ function this.calculateTemp(timerInterval)
 
     --Inside: region/time have significantly reduced effect, temp hovers around comfortable
 	local cell = tes3.getPlayerCell()
+	local intWeatherEffect = common.data.intWeatherEffect or 0
 	if cell.isInterior then
-        tempRaw = interiorBaseTemp 
-                + ( regionTemp * intRegionMultiplier )
-                + ( timeTemp * intTimeMultiplier )
+        tempRaw = interiorBaseTemp + ( weatherTemp * interiorWeatherMultiplier ) + intWeatherEffect
     else
-        tempRaw = exteriorBaseTemp + regionTemp + timeTemp
+        tempRaw = exteriorBaseTemp + weatherTemp
 	end
-
+	common.data.tempRaw = tempRaw
     tempReal = (
         tempRaw  + wetTemp
                  + torchTemp
@@ -170,18 +168,20 @@ local function onKeyG(e)
 		if e.pressed then
 			if not common.data.regionTemp then 
 				tes3.messageBox("No regionTemp")
-			elseif not common.data.timeTemp then 
-				tes3.messageBox("No timeTemp")
+			elseif not common.data.weatherTemp then 
+				tes3.messageBox("No weatherTemp")
 			end
 		
 			gameHour = tes3.getGlobal("GameHour")
 			local currentTime = common.hourToClockTime(gameHour)
-            tes3.messageBox(
-                "Total Warmth = " .. ( common.data.armorTemp + common.data.clothingTemp )  
-                .. ", Total Coverage: " .. ( common.data.armorCoverage + common.data.clothingCoverage ) 
-            )
-        	--tes3.messageBox("Temperature: (%.2f/%.2f) \nTime: %s", tempPlayer, tempLimit, currentTime )
-			--tes3.messageBox("RegionTemp: %.2f \n TimeTemp: %.2f \n WetTemp: %.2f",  common.data.regionTemp, common.data.timeTemp, common.data.wetTemp)
+            --tes3.messageBox(
+            --    "Total Warmth = " .. ( common.data.armorTemp + common.data.clothingTemp )  
+            --    .. ", Total Coverage: " .. ( common.data.armorCoverage + common.data.clothingCoverage ) 
+           -- )
+			--tes3.messageBox("TempRaw: (%.2f)\ncold.max: %.2f \nTime: %s", tempRaw, common.conditionValues.veryCold.max, currentTime )
+			--tes3.messageBox("RegionTemp: %.2f \n weatherTemp: %.2f \n WetTemp: %.2f",  common.data.regionTemp, common.data.weatherTemp, common.data.wetTemp)
+			tes3.messageBox("Armor coverage: %.2f, Clothing coverage: %.2f", common.data.armorCoverage, common.data.clothingCoverage )
+			--tes3.messageBox("Weather Temp: %.2f, int Weather: %s", common.data.weatherTemp, ( common.data.intWeatherEffect or "nil"  ))
 		end
     end
 end

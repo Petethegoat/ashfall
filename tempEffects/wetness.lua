@@ -8,7 +8,7 @@ local common = require("mer.ashfall.common")
 --How much rain and thunder increase wetness per game hour (without armor
 local rainEffect = 120
 local thunderEffect = 160
-local maxDryingEffect = 75 --dry per hour at max heat
+local dryingMultiplier = 75 --dry per hour at max heat
 
 --Boundaries for wetEffects
 this.dampLevel = common.wetnessValues.damp.min
@@ -91,14 +91,14 @@ function this.calcaulateWetTemp(timeSinceLastRan)
 	local weather = tes3.getCurrentWeather()
 	
 	local tempMultiplier = 0.5 + ( ( common.data.tempPlayer + 100 ) / 400 ) --between 0.5 and 1.0
-	
+	local armorCoverage = common.data.armorCoverage or 0.0
+	local clothingCoverage = common.data.clothingCoverage or 0.0
+	local coverage = math.clamp( ( armorCoverage + clothingCoverage ), 0, 0.95 )	
 
 	if weather.rainActive and not cell.isInterior then
         --Check if there's anything above the player's head		
 		checkForShelter()
-		local armorCoverage = common.data.armorCoverage or 0.0
-        local clothingCoverage = common.data.clothingCoverage or 0.0
-		local coverage = math.clamp( ( armorCoverage + clothingCoverage ), 0, 0.95 )
+
         
         --Raining
 		if weather.index == tes3.weather.rain and isSheltered == false then
@@ -113,7 +113,9 @@ function this.calcaulateWetTemp(timeSinceLastRan)
 	end
 	--Drying off (indoors or clear weather)
 	if isSheltered then
-		currentWetness = currentWetness - ( tempMultiplier * timeSinceLastRan * maxDryingEffect )
+		local dryCoverageEffect = 1 - ( coverage / 2 )
+		local dryChange = ( tempMultiplier * timeSinceLastRan * dryingMultiplier * dryCoverageEffect )
+		currentWetness = currentWetness - dryChange
 	end
 	--assert min/max values
 	currentWetness = currentWetness < 0 and 0 or currentWetness

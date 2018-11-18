@@ -13,6 +13,10 @@ local fireEffect = require("mer.ashfall.tempEffects.fireEffect")
 local frostBreath = require("mer.ashfall.frostBreath")
 local hud = require("mer.ashfall.ui.hud")
 
+
+--Needs
+local thirst = require("mer.ashfall.needs.thirst.thirstCalculate")
+
 --How often the script should run in gameTime
 local scriptInterval = 0.0005
 
@@ -20,7 +24,10 @@ local function callUpdates()
     calcTemp.calculateTemp(scriptInterval)
 	weather.calculateWeatherEffect()
 	wetness.calcaulateWetTemp(scriptInterval)
-    
+	thirst.calculateThirstLevel(scriptInterval)
+	
+	--Needs:
+
     --For heavy scripts and those that don't need to be run while sleeping
 	if tes3.menuMode() == false then
 		frostBreath.doFrostBreath()

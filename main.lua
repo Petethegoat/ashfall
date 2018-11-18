@@ -13,12 +13,12 @@ local function initialized()
 		require ("mer.ashfall.common")
         
         --temp effect modules
-		require ("mer.ashfall.tempEffects.tempTimer")
+		require ("mer.ashfall.tempEffects.scriptTimer")
         require("mer.ashfall.tempEffects.ratings.ratingEffects")
         
 		
 		require("mer.ashfall.harvest_wood")
-		require("mer.ashfall.drinking")
+		require("mer.ashfall.needs.thirst.thirstActivate")
 		require("mer.ashfall.ui.hud")
 
 		require("mer.ashfall.activators.bedroll")
@@ -29,6 +29,7 @@ local function initialized()
 		mwse.log("[Ashfall: INFO] Initialized Ashfall")
 	end
 end
+
 
 --Need to initialise faders immediately
 --require ("mer.ashfall.faderController")

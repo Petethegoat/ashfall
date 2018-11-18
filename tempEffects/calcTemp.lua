@@ -179,7 +179,8 @@ local function onKeyG(e)
 			tes3.messageBox("TempRaw: %.2f, tempReal: %.2f, tempLimit: %.2f", tempRaw, tempReal,tempLimit )
 			--tes3.messageBox("RegionTemp: %.2f \n weatherTemp: %.2f \n WetTemp: %.2f",  common.data.regionTemp, common.data.weatherTemp, common.data.wetTemp)
 			--tes3.messageBox("Armor coverage: %.2f, Clothing coverage: %.2f", common.data.armorCoverage, common.data.clothingCoverage )
-			tes3.messageBox("Weather Temp: %.2f, int Weather: %s", common.data.weatherTemp, ( common.data.intWeatherEffect or "nil"  ))
+			--tes3.messageBox("Weather Temp: %.2f, int Weather: %s", common.data.weatherTemp, ( common.data.intWeatherEffect or "nil"  ))
+			tes3.messageBox("Thirst: %.2f", ( common.data.thirst or "nil" ) )
 		end
     end
 end

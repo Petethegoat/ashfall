@@ -36,35 +36,39 @@ local regionValues = {
 	--Vvardenfell
 	--Cold
 	["Sheogorad"]			 		= {	min	= -30 , max =  -30 },
-	["Azura's Coast Region"]		= {	min	= -20 , max =  -20 },
+	["Azura's Coast Region"]		= {	min	= -10 , max =  10 },
 	--Normal
 	["Ascadian Isles Region"]		= {	min	= 0 , max =  0 }, --Perfectly normal weather here
 	["Grazelands Region"]			= {	min	= -10 , max =  20 },-- gets cold at night, warm in day
 	--Hot
 	["Bitter Coast Region"]			= {	min	= 10 , max =  10 }, 
-	["West Gash Region"]		 	= {	min	= 10 , max =  30 },
+	["West Gash Region"]		 	= {	min	= 20 , max =  30 },
 	["Ashlands Region"]				= {	min	= 30 , max =  40 },
-	["Molag Mar Region"]			= {	min	= 50 , max =  50 },
+	["Molag Mar Region"]			= {	min	= 40 , max =  50 },
 	["Red Mountain Region"]			= {	min	= 50 , max =  60 },
 }
 
 --Keyword search in interior names for cold caves etc
-local defaultWeatherTemp = 5
+local defaultWeatherTemp = 0
 local interiorValues = {
-	[" Sewers"] 	= -5,
-	[" Eggmine"] 	= -5,
-	[" Egg Mine"] 	= -5,
-	[" Grotto"] 	= -5,
-	[" Dungeon"]	= -10,
-	[" Tomb"] 		= -15,
-	[" Crypt"] 		= -15,
-	[" Catacomb"] 	= -15,
-	[" Cave"] 		= -20,
-	[" Barrow"] 	= -30
+	[" Sewers"] 	= -15,
+	[" Eggmine"] 	= -20,
+	[" Egg Mine"] 	= -20,
+	[" Grotto"] 	= -20,
+	[" Dungeon"]	= -25,
+	[" Tomb"] 		= -25,
+	[" Crypt"] 		= -30,
+	[" Catacomb"] 	= -30,
+	[" Cave"] 		= -35,
+	[" Barrow"] 	= -45,
+
+	["Addamasartus"] = -35
 }
 
 local function updateWeather(weatherObj)
-	currentWeather = weatherObj.index
+	if weatherObj then
+		currentWeather = weatherObj.index
+	end
 end
 
 local function immediateChange(e)
@@ -76,10 +80,10 @@ local function transitionEnd(e)
 end
 
 function this.calculateWeatherEffect()
-	if not currentWeather then updateWeather(tes3.getCurrentWeather()) end
+	currentWeather = currentWeather or tes3.weather.clear
 	local regionID = tes3.player.cell.region and tes3.player.cell.region.id or ""
 
-	local gameHour = tes3.getGlobal("GameHour")
+	local gameHour = tes3.getGlobal("GameHour") or 0
 	--This puts Midnight at 0, Midday at 12, in both directions
 	local convertedTime = gameHour < 12 and gameHour or ( 12 - ( gameHour - 12) ) 
     --Clamp so temp stays the same for an hour at midday and midnight
@@ -96,10 +100,10 @@ end
 local function cellChanged(e)
 	updateWeather(tes3.getCurrentWeather())
 	local intWeatherEffect = defaultWeatherTemp
-	tes3.messageBox("cell ID: %s", e.cell.id)
+	common.data.interiorType = "none"
 	for key, val in pairs(interiorValues) do
-		if string.find(e.cell.id, key) then
-			tes3.messageBox("key: %s, val: %s", key, val)
+		if string.find(tes3.player.cell.id, key) then
+			common.data.interiorType = key
 			intWeatherEffect = val
 		end
 	end
@@ -109,10 +113,11 @@ end
 local registerOnce
 local function dataLoaded()
 	updateWeather(tes3.getCurrentWeather())
-	common.data.weatherTemp = intWeatherEffect
+	common.data.weatherTemp = defaultWeatherTemp
     if not registerOnce then
-        registerOnce = true
-        event.register("cellChanged", cellChanged)
+		registerOnce = true
+		cellChanged()
+		event.register("cellChanged", cellChanged)
         event.register("weatherChangedImmediate", immediateChange)
         event.register("weatherTransitionFinished", transitionEnd)
     end

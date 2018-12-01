@@ -1,11 +1,6 @@
 local this = {}
 local common = require("mer.ashfall.common")
 local ratingsCommon = require("mer.ashfall.tempEffects.ratings.ratingsCommon")
-local armorClothingData = ratingsCommon.data
-local armorWarmthCache = ratingsCommon.armorWarmthCache
-local clothingWarmthCache = ratingsCommon.clothingWarmthCache
-local armorCoverageCache = ratingsCommon.armorCoverageCache
-local clothingCoverageCache = ratingsCommon.clothingCoverageCache
 
 local function quickFormat(element, padding)
 	element.paddingAllSides = padding
@@ -34,10 +29,10 @@ function this.createArmorRatings()
         outerBlock.autoWidth = true
         outerBlock.autoHeight = true 
 
-        warmthText = "Warmth: "
+        local warmthText = "Warmth: "
         local warmthLabel = outerBlock:createLabel({ id = tes3ui.registerID("Ashfall:WarmthRating"), text = warmthText }) 
 
-        coverageText = "Coverage: "
+        local coverageText = "Coverage: "
         local coverageLabel = outerBlock:createLabel({ id = tes3ui.registerID("Ashfall:CoverageRating"), text = coverageText }) 
 
         --characterBox:reorderChildren(0, outerBlock, 1)
@@ -74,22 +69,13 @@ function this.insertRatings(e)
     if not e.tooltip then return end
     if not e.object then return end
     local slot
-    local data
-    local warmthCache
-    local coverageCache
     local isValidSlot
 
     if e.object.objectType == tes3.objectType.armor then
         slot = ratingsCommon.armorSlotDict[e.object.slot]
-        data = armorClothingData.armorData
-        warmthCache = armorWarmthCache
-        coverageCache = armorCoverageCache
         isValidSlot = ratingsCommon.isValidArmorSlot( tes3.armorSlot[slot] )
     elseif e.object.objectType == tes3.objectType.clothing then
         slot = ratingsCommon.clothingSlotDict[e.object.slot]
-        data = armorClothingData.clothingData
-        warmthCache = clothingWarmthCache
-        coverageCache = clothingCoverageCache
         isValidSlot = ratingsCommon.isValidClothingSlot( tes3.clothingSlot[slot] )
     end
     if isValidSlot then
@@ -128,7 +114,7 @@ function this.insertRatings(e)
         quickFormat(warmthHeader)
         --warmthHeader.color = tes3ui.getPalette("header_color")
         
-        local warmth = " " .. ratingsCommon.getWarmthRating( ratingsCommon.calculateItemValue( e.object, slot, data.warmth, warmthCache ) )
+        local warmth = " " .. ratingsCommon.getWarmthRating( ratingsCommon.calculateItemWarmth( e.object ) )
         local warmthValue = warmthBlock:createLabel({ id = tes3ui.registerID("Ashfall:ratings_warmthValue"), text = warmth })
         warmthValue.autoHeight = true
         warmthValue.autoWidth = true
@@ -143,7 +129,7 @@ function this.insertRatings(e)
         quickFormat(coverageHeader)
         --coverageHeader.color = tes3ui.getPalette("header_color")
         
-        local coverage = " " .. ratingsCommon.getCoverageRating( ratingsCommon.calculateItemValue( e.object, slot, data.coverage,  coverageCache) )
+        local coverage = " " .. ratingsCommon.getCoverageRating( ratingsCommon.calculateItemCoverage( e.object ) )
         local coverageValue = coverageBlock:createLabel({ id = tes3ui.registerID("Ashfall:ratings_coverageValue"), text = coverage })
         coverageValue.autoHeight = true
         coverageValue.autoWidth = true            

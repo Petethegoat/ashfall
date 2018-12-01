@@ -8,25 +8,26 @@ local this = {}
 local common = require("mer.ashfall.common")
 
 ---CONFIGS----------------------------------------
---non-fire pits (torches etc)
-local maxHeatDefault = 15
---Heat for vanilla firepits
-local maxHeatFirePit = 40
 --max distance where fire has an effect
+local heatValues = {
+    lantern = 5,
+    candle = 10, 
+    sconce = 15,
+    torch = 20
+}
+local heatDefault = 15
+local heatFirepit = 40
 local maxDistance = 350
 --Multiplier when warming hands next to firepit
 local warmHandsBonus = 1.4
 --------------------------------------------------
 
 --Check if player has Magic ready stance
-local warmingHands
+local warmingHands 
 local triggerWarmMessage
 local function checkWarmHands()
-    mwse.log("Checking hands")
     if tes3.mobilePlayer.castReady then
-        mwse.log("Hands at the ready")
         if not warmingHands then
-            mwse.log("Setting to true")
             warmingHands = true
             triggerWarmMessage = true
         end
@@ -43,28 +44,38 @@ local function checkForFirePit(id)
         or string.find( string.lower(id), "logpile" )
     )
 end
+
 function this.calculateFireEffect()
     local totalHeat = 0
     local closeEnough
-    for ref in tes3.getPlayerCell():iterateReferences(tes3.objectType.light) do
-        if ref.object.isFire then
-            local distance = mwscript.getDistance({reference = "player", target = ref})
-            --tes3.messageBox("Fire distance: %.2f", distance) 
-            if distance < maxDistance then
-                local maxHeat
-                if checkForFirePit(ref.object.id) then
-                    closeEnough = true
-                    maxHeat = maxHeatFirePit
-                    checkWarmHands()
-                    if warmingHands then
-                        maxHeat = maxHeat * warmHandsBonus
+    common.data.fireType = "none"
+    for _, cell in pairs( tes3.getActiveCells() ) do
+        for ref in cell:iterateReferences(tes3.objectType.light) do
+            if ref.object.isFire then
+                local distance = mwscript.getDistance({reference = "player", target = ref})
+                if distance < maxDistance then
+                    local maxHeat = heatDefault
+                    --Firepits have special logic for hand warming
+                    if checkForFirePit(ref.object.id) then
+                        common.data.fireType = "firepit"
+                        closeEnough = true
+                        maxHeat = heatFirepit
+                        checkWarmHands()
+                        if warmingHands then
+                            maxHeat = maxHeat * warmHandsBonus
+                        end
+                    --other fires
+                    else
+                        for pattern, heatValue in pairs(heatValues) do
+                            if string.find(ref.object.id, pattern) then
+                                common.data.fireType = pattern
+                                maxHeat = heatValue
+                            end
+                        end
                     end
-                else
-                    maxHeat = maxHeatDefault
+                    local heat = math.remap( distance, maxDistance, 0,  0, maxHeat )
+                    totalHeat = totalHeat + heat
                 end
-
-                local heat = math.remap( distance, maxDistance, 0,  0, maxHeat )
-                totalHeat = totalHeat + heat
             end
         end
     end
@@ -77,5 +88,6 @@ function this.calculateFireEffect()
     end
     common.data.fireTemp = totalHeat
 end
+
 
 return this

@@ -16,20 +16,19 @@ local rightTempLimitBar
 
 local wetnessBar
 
-
 function this.updateHUD()
 	if not common.data then return end
 	if outerFrame and leftTempPlayerBar and conditionLabel then
-		local tempPlayer = common.data.tempPlayer or 0
-		local tempLimit =  common.data.tempLimit or 0
+		local tempPlayer = math.clamp(common.data.tempPlayer, -100, 100) or 0
+		local tempLimit =  math.clamp(common.data.tempLimit, -100, 100) or 0
 		local condition = common.conditionValues[( common.data.currentCondition  or "comfortable" )].text
-		
 		local wetness = common.data.wetness or 0
-		
+		wetness = math.clamp(wetness, 0, 100) or 0
+
 		conditionLabel.text = condition
 		--Cold
 		if tempPlayer < 0 then
-		
+
 			leftTempPlayerBar.widget.fillColor = {0.3, 0.5, (0.75 + tempPlayer/400)} --Bluish
 			leftTempPlayerBar.widget.current = tempPlayer
 			--hack
@@ -43,7 +42,6 @@ function this.updateHUD()
 			local bar = leftTempPlayerBar:findChild(tes3ui.registerID("PartFillbar_colorbar_ptr"))
 			bar.width = 0
 		end
-		
 
 		if tempLimit < 0 then
 			leftTempLimitBar.widget.fillColor = {0.3, 0.5, (0.75 + tempLimit/400)} --Bluish
@@ -74,9 +72,9 @@ local function quickFormat(element, padding)
 	return element
 end
 
-
+local topBlockID = tes3ui.registerID("Ashfall:topBlock")
 local function createHUD(e)
-
+	if not e.newlyCreated then return end
 	local tempBarWidth = 70
 	local tempBarHeight = 10
 	local limitBarHeight = 12
@@ -90,7 +88,9 @@ local function createHUD(e)
 	bottomLeftBar.flowDirection = "top_to_bottom"
 
 	---\
-		local topBlock = bottomLeftBar:createBlock({"Ashfall:topBlock"})
+
+		local topBlock = bottomLeftBar:createBlock({id = topBlockID})
+
 		topBlock.flowDirection = "left_to_right"
 		topBlock = quickFormat(topBlock, 0)
 		---\
@@ -171,7 +171,7 @@ local function createHUD(e)
 						leftTempLimitBar.width = tempBarWidth
 						--Reverse direction of left bar
 						leftTempLimitBar.paddingAllSides = 2
-						local bar = leftTempLimitBar:findChild(tes3ui.registerID("PartFillbar_colorbar_ptr"))
+						bar = leftTempLimitBar:findChild(tes3ui.registerID("PartFillbar_colorbar_ptr"))
 						bar.layoutOriginFractionX = 1.0				
 						
 				---\		
@@ -208,6 +208,6 @@ local function createHUD(e)
 
 end
 
-event.register("uiCreated", createHUD, { filter = "MenuMulti" })
+event.register("uiActivated", createHUD, { filter = "MenuMulti" })
 
 return this

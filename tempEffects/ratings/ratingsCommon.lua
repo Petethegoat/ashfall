@@ -1,21 +1,24 @@
 local this = {}
 
+local warmthMax = 30
+local coverageMax = 1.0
+
+local warmthRatingMultiplier = 3
+local coverageRatingMultiplier = 100
 this.data = {
-    warmthRatingMultiplier = 10,
-    coverageRatingMultiplier = 100,
-    warmthRealMultiplier = 12,
-    coverageRealMultiplier = 1.0,
     armorData = 
     {
         warmth = {
-            type = "warmth",
+            cachePath = "ashfall/generated/armor_warmth",
+            presetsPath = "ashfall/presets/armor_warmth",
+            maxValue = warmthMax,
             slotRatios = 
             {
                 ["helmet"]          = 0.100,
-                ["cuirass"]         = 0.200,
+                ["cuirass"]         = 0.250,
                 ["leftPauldron"]    = 0.100,
                 ["rightPauldron"]   = 0.100,
-                ["greaves"]         = 0.150,
+                ["greaves"]         = 0.200,
                 ["boots"]           = 0.100,
                 ["leftGauntlet"]    = 0.075,
                 ["rightGauntlet"]   = 0.075,
@@ -31,8 +34,7 @@ this.data = {
                 ["Bonemold "]       = 35,
                 ["Chitin "]         = 30,
                 ["Cloth "]          = 50,
-                ["Colovian "]       = 60,
-                ["Daedric "]        = 75,
+                ["Daedric "]        = 70,
                 ["Dark B"]          = 35,
                 ["Dreugh "]         = 30,
                 ["Dwemer "]         = 20,
@@ -50,11 +52,12 @@ this.data = {
                 ["Indoril "]        = 40,
                 ["Iron "]           = 15,
                 ["Netch "]          = 45,
-                ["Nordic Fur "]     = 30,
-                ["Nordic Mail"]     = 45,
-                ["Nordic Troll"]    = 50,
-                ["Nordic Iron"]     = 40,
-                ["Nordic leather"]  = 65,
+                ["Fur "]            = 80,
+                ["Nordic Mail"]     = 70,
+                ["Nordic Troll"]    = 65,
+                ["Nordic Iron"]     = 75,
+                ["Nordic Leather"]  = 70,
+                ["Nordic Bearskin"] = 80,
                 ["Orcich"]          = 25,
                 ["Redoran"]         = 30,
                 ["Royal G"]         = 35,
@@ -65,7 +68,9 @@ this.data = {
             }
         },
         coverage = {
-            type = "coverage",
+            maxValue = coverageMax,
+            cachePath = "ashfall/generated/armor_coverage",
+            presetsPath = "ashfall/presets/armor_coverage",
             slotRatios = 
             {
                 ["helmet"]          = 0.15,
@@ -86,7 +91,7 @@ this.data = {
                 ["Adamantium "]     = 70,
                 ["Bear "]           = 45,
                 ["Bonemold "]       = 65,
-                ["Chitin "]         = 40,
+                ["Chitin "]         = 75,
                 ["Cloth "]          = 25,
                 ["Colovian "]       = 30,
                 ["Daedric "]        = 70,
@@ -104,14 +109,15 @@ this.data = {
                 ["Imperial Templ "] = 70,
                 ["Indoril "]        = 60,
                 ["Iron "]           = 65,
-                ["Netch "]          = 50,
+                ["Native "]         = 90,
+                ["Netch "]          = 65,
                 ["Nordic Fur "]     = 30,
                 ["Nordic Mail"]     = 35,
                 ["Nordic Troll"]    = 60,
                 ["Nordic Iron"]     = 65,
                 ["Nordic leather"]  = 55,
                 ["Orcich"]          = 75,
-                ["Redoran"]         = 60,
+                ["Redoran"]         = 90,
                 ["Royal G"]         = 75,
                 ["Slave"]           = 10,
                 ["Steel"]           = 75,
@@ -119,13 +125,12 @@ this.data = {
                 ["Wolf "]           = 35,
             }
         }
-
-
-
     },
     clothingData = {
         warmth = {
-            type = "warmth",
+            maxValue = warmthMax,
+            cachePath = "ashfall/generated/clothing_warmth",
+            presetsPath = "ashfall/presets/clothing_warmth",
             slotRatios =  
             {   --These don't have to add up to 1.0 because of layering
                 --"1.0" Total is like, a basic set of gear, not fully kitted out
@@ -141,16 +146,19 @@ this.data = {
             enchanted = 80,
             values = 
             {
-                ["Common "]         = 50,
-                ["Expensive "]      = 65,
-                ["Extravagant "]    = 70,
-                ["Exquisite "]      = 80,
-                ["Fire"]           = 110,
-                ["Flame"]           = 105,
+                ["Common "]         = 55,
+                ["Expensive "]      = 57,
+                ["Extravagant "]    = 60,
+                ["Exquisite "]      = 65,
+                ["Fire"]           = 100,
+                ["Flame"]           = 100,
                 ["Frost"]           = 0,
             }
         },
         coverage = {
+            maxValue = coverageMax,
+            cachePath = "ashfall/generated/clothing_coverage",
+            presetsPath = "ashfall/presets/clothing_coverage",
             type = "coverage",
             slotRatios =  
             {
@@ -166,18 +174,14 @@ this.data = {
             enchanted = 40,
             values  = {
                 ["Common "]         = 30,
-                ["Expensive "]      = 35,
-                ["Extravagant "]    = 40,
-                ["Exquisite "]      = 45,
+                ["Expensive "]      = 32,
+                ["Extravagant "]    = 35,
+                ["Exquisite "]      = 40,
             }
         }
     }
 }
 
-this.armorWarmthCache = mwse.loadConfig("ashfall/armor_warmth") or {}
-this.clothingWarmthCache = mwse.loadConfig("ashfall/clothing_warmth") or {}
-this.armorCoverageCache = mwse.loadConfig("ashfall/armor_coverage") or {}
-this.clothingCoverageCache = mwse.loadConfig("ashfall/clothing_coverage") or {}
 
 this.armorSlotDict = {}
 for name, slot in pairs(tes3.armorSlot) do
@@ -190,11 +194,11 @@ end
 
 --Get ratings from raw values for individual items
 function this.getWarmthRating( rawValue )
-    return math.floor( rawValue * this.data.warmthRatingMultiplier )
+    return math.floor( rawValue * warmthRatingMultiplier )
 end
 
 function this.getCoverageRating( rawValue )
-    return math.floor( rawValue * this.data.coverageRatingMultiplier )
+    return math.floor( rawValue * coverageRatingMultiplier )
 end
 
 function this.isValidArmorSlot( armorSlot )
@@ -204,21 +208,26 @@ function this.isValidClothingSlot( clothingSlot )
     return clothingSlot ~= tes3.clothingSlot.ring and clothingSlot ~= tes3.clothingSlot.amulet and clothingSlot ~= tes3.clothingSlot.belt
 end
 
-function this.calculateItemValue( item, slotName, thisData, cache )
+local function calculateItemValue( item, thisData )
+    local cache = mwse.loadConfig(thisData.cachePath) or {}
+    local presets = mwse.loadConfig(thisData.presetsPath) or {}
     local itemId = item.id
     local itemName = item.name   
     local newValue
-    local multiplier
-    if thisData.type == "warmth" then
-        multiplier = this.data.warmthRealMultiplier
-    else
-        multiplier = this.data.coverageRealMultiplier
-    end
-    --Check if warmth value exists in config file
-    for id, val in pairs(cache) do
+    --Check if value exists in presets list
+    for id, val in pairs(presets) do
         if itemId == id then
             newValue = val
             break
+        end
+    end
+    --Check if value exists in cache
+    if not newValue then
+        for id, val in pairs(cache) do
+            if itemId == id then
+                newValue = val
+                break
+            end
         end
     end
     --Otherwise calculate
@@ -232,19 +241,34 @@ function this.calculateItemValue( item, slotName, thisData, cache )
         end
         --No pattern, default
         if not newValue then
+           
             if item.enchantment then
                 newValue = thisData.enchanted
             else
                 newValue = thisData.default
             end
         end
-        --Check slot type and remap values
-        local slotMax = thisData.slotRatios[slotName]
-        newValue = math.remap( newValue, 0, 100, 0, slotMax ) * multiplier
-        print("Final warmth: " .. newValue )
+        cache[item.id] = newValue
+        mwse.saveConfig( thisData.cachePath, cache )
     end
+    newValue = math.remap(newValue, 0, 100, 0, thisData.maxValue)
     return newValue
 end
 
+function this.calculateItemWarmth( item )
+    if item.objectType == tes3.objectType.armor then
+        return calculateItemValue(item, this.data.armorData.warmth)
+    elseif item.objectType == tes3.objectType.clothing then
+        return calculateItemValue(item, this.data.clothingData.warmth)
+    end
+end
+
+function this.calculateItemCoverage( item )
+    if item.objectType == tes3.objectType.armor then
+        return calculateItemValue(item, this.data.armorData.coverage)
+    elseif item.objectType == tes3.objectType.clothing then
+        return calculateItemValue(item, this.data.clothingData.coverage)
+    end   
+end
 
 return this

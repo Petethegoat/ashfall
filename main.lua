@@ -1,7 +1,7 @@
 --[[
 	Plugin: ashfall.esp
 --]]
-function onLoaded()
+local function onLoaded()
 	-- set global to disable mwscripts
 	tes3.setGlobal("a_lua_enabled", 1)
 end
@@ -15,14 +15,14 @@ local function initialized()
         --temp effect modules
 		require ("mer.ashfall.tempEffects.scriptTimer")
         require("mer.ashfall.tempEffects.ratings.ratingEffects")
-        
 		
+		
+		require("mer.ashfall.needs.needs")
+
 		require("mer.ashfall.harvest_wood")
-		require("mer.ashfall.needs.thirst.thirstActivate")
 		require("mer.ashfall.ui.hud")
 
 		require("mer.ashfall.activators.bedroll")
-        require("mer.ashfall.sleepController")   
 		
 		require("mer.ashfall.frostbreath")
 

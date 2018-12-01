@@ -1,13 +1,13 @@
 local common = require("mer.ashfall.common")
+local this = {}
 
 local coldRestLimit = common.conditionValues.veryCold.min
 local hotRestLimit = common.conditionValues.veryHot.max
-
-
 local interruptText = ""
 local isScripted
 
 local function setRestValues(e)
+    if not common.data then return end
     --scripted means the player has activated a bed or bedroll
     isScripted = e.scripted
     --Set interrupt text
@@ -33,6 +33,7 @@ end
 --We do this by tapping into the Rest Menu,
 --replacing the text and removing rest/wait buttons
 local function activateRestMenu (e)
+    if not common.data then return end
     local temp = common.data.tempLimit + ( isScripted and common.bedTemp or 0 )
     if temp < coldRestLimit or temp > hotRestLimit then
 
@@ -57,10 +58,15 @@ local function activateRestMenu (e)
 end
 
 --Wake up if sleeping and ENVIRONMENT is too cold/hot
-local function checkSleeping()
+function this.checkSleeping()
     if tes3.menuMode() then
-        local temp = common.data.tempLimit + ( isScripted and common.bedTemp or 0 )
-        
+        if isScripted then
+            common.data.bedTemp = common.bedTemp
+        else
+            common.data.bedTemp = 0
+        end
+
+        local temp = common.data.tempLimit
         if temp < coldRestLimit or temp > hotRestLimit then
             tes3.runLegacyScript({ command = "WakeUpPC" })
             tes3.messageBox({ message = interruptText, buttons = { "Okay" } })
@@ -68,13 +74,8 @@ local function checkSleeping()
 	end
 end
 
-local registerOnce
-local function dataLoaded()
-    timer.start({ type = timer.game, duration = 0.01, iterations = -1, callback = checkSleeping })
-    if not registerOnce then
-        registerOnce = true
-        event.register("uiActivated", activateRestMenu, { filter = "MenuRestWait" })
-        event.register("uiShowRestMenu", setRestValues )
-    end
-end
-event.register("Ashfall:dataLoaded", dataLoaded )
+
+event.register("uiActivated", activateRestMenu, { filter = "MenuRestWait" })
+event.register("uiShowRestMenu", setRestValues )
+
+return this

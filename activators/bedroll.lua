@@ -1,13 +1,12 @@
 local sleepButton = "Sleep"
 local pickUpButton = "Pick up"
 local cancelButton = "Cancel"
-local menuButtons = {pickUpButton, cancelButton}
+local menuButtons = {}
 
-local doPickUpBedroll
 local bedRef
 
 local function onMenuSelect(e)
-	local result = menuButtons[e.button + 1] 
+	local result = menuButtons[e.button + 1]
 	if result == sleepButton then
 		tes3.showRestMenu()
 	elseif result == pickUpButton then
@@ -25,6 +24,7 @@ end
 local function onActivate(e)
 	if ( e.target.object.id == "fw_bedroll" ) then
 		bedRef = e.target
+		menuButtons = {pickUpButton, cancelButton}
 		if not tes3.getPlayerCell().restingIsIllegal then
 			table.insert(menuButtons, 1, sleepButton)
 		end
@@ -33,7 +33,6 @@ local function onActivate(e)
 			buttons = menuButtons,
 			callback = onMenuSelect
 		})
-		
 	end
 end
 

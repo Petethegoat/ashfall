@@ -9,12 +9,15 @@ local wetCondition = require("mer.ashfall.wetCondition")
 local torch = require("mer.ashfall.tempEffects.torch")
 local raceEffects = require("mer.ashfall.tempEffects.raceEffects")
 local fireEffect = require("mer.ashfall.tempEffects.fireEffect")
+local magicEffects = require("mer.ashfall.tempEffects.magicEffects")
+local hazardEffects = require("mer.ashfall.tempEffects.hazardEffects")
 
 local frostBreath = require("mer.ashfall.frostBreath")
 local hud = require("mer.ashfall.ui.hud")
-
+local sleepController = require("mer.ashfall.sleepController")   
 
 --Needs
+local needsUI = require("mer.ashfall.needs.needsUI")
 local thirst = require("mer.ashfall.needs.thirst.thirstCalculate")
 
 --How often the script should run in gameTime
@@ -25,19 +28,25 @@ local function callUpdates()
 	weather.calculateWeatherEffect()
 	wetness.calcaulateWetTemp(scriptInterval)
 	thirst.calculateThirstLevel(scriptInterval)
-	
+	sleepController.checkSleeping()
 	--Needs:
 
     --For heavy scripts and those that don't need to be run while sleeping
 	if tes3.menuMode() == false then
-		frostBreath.doFrostBreath()
+		--temp effects
         raceEffects.calculateRaceEffects()
         torch.calculateTorchTemp()
+		fireEffect.calculateFireEffect()
+		magicEffects.calculateMagicEffects()
+		hazardEffects.calculateHazards()
+		--conditions
 		condition.updateConditionState()
 		wetCondition.updateWetConditionState()
-		fireEffect.calculateFireEffect()
+		--visuals
+		frostBreath.doFrostBreath()
+		needsUI.updateNeedsUI()
 	end
-	hud.updateHUD()			
+	hud.updateHUD()
 end
 
 local function dataLoaded()
@@ -49,3 +58,4 @@ end
 
 --Register functions
 event.register("Ashfall:dataLoaded", dataLoaded)
+event.register("loaded", dataLoaded)

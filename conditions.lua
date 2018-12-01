@@ -97,14 +97,14 @@ function this.updateConditionState()
 	end
 end
 
-local function onKeyB(e)
-	if not tes3.menuMode() and e.pressed then
+local function onKeyB()
+	if not tes3.menuMode() then
 		tes3.messageBox("Current condition = " .. common.data.currentCondition)
 		tes3.messageBox("Player Temp = " .. common.data.tempPlayer )
 		tes3.messageBox("Wetness = " .. common.data.wetness)
 	end
 end
-event.register("key", onKeyB, {filter = 48})
+event.register("keyDown", onKeyB, {filter = 48})
 
 
 return this

@@ -86,7 +86,7 @@ local function onLoaded()
 	print("Ashfall: Common.lua loaded successfully")
 	
 	event.trigger("Ashfall:dataLoaded")
-end	
+end
 event.register("loaded", onLoaded)
 
 return this

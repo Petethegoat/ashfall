@@ -10,12 +10,18 @@ local common = require("mer.ashfall.common")
 ---CONFIGS----------------------------------------
 --max distance where fire has an effect
 local heatValues = {
-    lantern = 5,
-    candle = 10, 
-    sconce = 15,
-    torch = 20
+    lantern = 3,
+    lamp = 3,
+    candle = 5, 
+    chandelier = 3,
+    sconce = 10,
+    torch = 15,
+    flame = 20
 }
-local heatDefault = 15
+
+
+
+local heatDefault = 5
 local heatFirepit = 40
 local maxDistance = 350
 --Multiplier when warming hands next to firepit
@@ -38,11 +44,17 @@ end
 
 --Check Ids to see if this light is a firepit of some kind
 local function checkForFirePit(id)
-    return (
-        string.find( string.lower(id), "firepit" )
-        or string.find( string.lower(id), "pitfire" )
-        or string.find( string.lower(id), "logpile" )
-    )
+    local patterns = {
+        "firepit",
+        "pitfire",
+        "logpile"
+    }
+    for _, pattern in pairs(patterns) do
+        if string.find( string.lower(id), pattern) then
+            return true
+        end
+    end
+    return false
 end
 
 function this.calculateFireEffect()
@@ -51,7 +63,7 @@ function this.calculateFireEffect()
     common.data.fireType = "none"
     for _, cell in pairs( tes3.getActiveCells() ) do
         for ref in cell:iterateReferences(tes3.objectType.light) do
-            if ref.object.isFire then
+            --if ref.object.isFire then
                 local distance = mwscript.getDistance({reference = "player", target = ref})
                 if distance < maxDistance then
                     local maxHeat = heatDefault
@@ -67,16 +79,17 @@ function this.calculateFireEffect()
                     --other fires
                     else
                         for pattern, heatValue in pairs(heatValues) do
-                            if string.find(ref.object.id, pattern) then
+                            if string.find(string.lower(ref.object.id), pattern) then
                                 common.data.fireType = pattern
                                 maxHeat = heatValue
+                                --mwse.log("Fire source: %s", ref.object.id)
                             end
                         end
                     end
                     local heat = math.remap( distance, maxDistance, 0,  0, maxHeat )
                     totalHeat = totalHeat + heat
                 end
-            end
+            --end
         end
     end
     if not closeEnough then

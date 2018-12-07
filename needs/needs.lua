@@ -4,3 +4,6 @@
 
 require("mer.ashfall.needs.thirst.drink")
 require("mer.ashfall.needs.thirst.thirstActivate")
+
+require("mer.ashfall.needs.hunger.eat")
+require("mer.ashfall.needs.hunger.hungerTooltips")

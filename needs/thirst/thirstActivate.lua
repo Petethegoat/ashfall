@@ -12,6 +12,11 @@ local thirstCommon = require("mer.ashfall.needs.thirst.thirstCommon")
 local id_waterTooltip = tes3ui.registerID("Ashfall:waterTooltip")
 local id_waterTooltipLabel = tes3ui.registerID("Ashfall:waterTooltipLabel")
 
+local waterSources = {
+	["ex_nord_well"] = "Well",
+	["kegstand"] = "Keg"
+}
+
 --Create water/well tooltip if it doesn't exist
 local function createTooltip(text)
 	local tooltip = tes3ui.findMenu(id_waterTooltip)
@@ -75,7 +80,6 @@ local function activateWaterMenu(e)
 		--first refill semiFilled containers
 		for _, bottleId in pairs(thirstCommon.containerList.partialFilled) do
 			if mwscript.getItemCount({reference = tes3.player, item = bottleId}) > 0 then
-				tes3.messageBox("its a half full")
 				refillContainer(bottleId)
 				filled = true
 				break
@@ -134,6 +138,7 @@ local function onActivateWater(e)
 	end
 end
 
+
 --Use rayTest to see if the player is looking at a water source
 local function checkForWater()
 	if not tes3.menuMode() then
@@ -149,9 +154,11 @@ local function checkForWater()
 			local targetRef = result.reference
 			if targetRef then
 				--Open menu for water well
-				if string.find(string.lower(targetRef.id), "ex_nord_well") then
-					createTooltip("Well")
-					return
+				for pattern, name in pairs(waterSources) do
+					if string.find(string.lower(targetRef.id), pattern) then
+						createTooltip(name)
+						return
+					end
 				end
 			end
 		end

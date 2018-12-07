@@ -1,6 +1,7 @@
 
 local this = {}
 local common = require("mer.ashfall.common")
+local conditions = require("mer.ashfall.conditions.thirstCondition")
 local needsUI = require("mer.ashfall.needs.needsUI")
 this.containerList = {
     bottles = {
@@ -44,7 +45,9 @@ this.containerList = {
 
 
 function this.drinkAmount( amount )
-    common.data.thirst = common.data.thirst -  math.clamp( amount, 0, common.data.thirst  )
+    local currentThirst = common.data.thirst or 0
+    common.data.thirst = math.max( ( currentThirst - amount ), 0 )
+    conditions.updateCondition()
     needsUI.updateNeedsUI()
 end
 

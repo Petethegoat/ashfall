@@ -6,14 +6,14 @@ local common = require("mer.ashfall.common")
 
 
 --How much rain and thunder increase wetness per game hour (without armor
-local rainEffect = 120
-local thunderEffect = 160
+local rainEffect = 150
+local thunderEffect = 300
 local dryingMultiplier = 75 --dry per hour at max heat
 
 --Boundaries for wetEffects
-this.dampLevel = common.wetnessValues.damp.min
-this.wetLevel = common.wetnessValues.wet.min
-this.soakedLevel = common.wetnessValues.soaked.min
+this.dampLevel = common.wetConditions.damp.min
+this.wetLevel = common.wetConditions.wet.min
+this.soakedLevel = common.wetConditions.soaked.min
 
 --Height at which Player gets wetEfects
 local dampHeight = 50
@@ -26,7 +26,6 @@ local wetTempMax = -25
 --Keep track of player position to save on rayTests
 local lastX
 local lastY
-local isSheltered
 
 local function checkForShelter()
 	local newPlayerPos = tes3.mobilePlayer.position
@@ -44,10 +43,10 @@ local function checkForShelter()
 		}
 		if result and result.reference and result.reference.object and result.reference.object.objectType == tes3.objectType.static then 
 			--tes3.messageBox("sheltered")
-			isSheltered = true
+			common.data.isSheltered = true
 		else
 			--tes3.messageBox("not sheltered")
-			isSheltered = false
+			common.data.isSheltered = false
 		end
 	end
 end
@@ -93,26 +92,22 @@ function this.calcaulateWetTemp(timeSinceLastRan)
 	local tempMultiplier = 0.5 + ( ( common.data.tempPlayer + 100 ) / 400 ) --between 0.5 and 1.0
 	local armorCoverage = common.data.armorCoverage or 0.0
 	local clothingCoverage = common.data.clothingCoverage or 0.0
-	local coverage = math.clamp( ( armorCoverage + clothingCoverage ), 0, 0.95 )	
+	local coverage = math.clamp( ( armorCoverage + clothingCoverage ), 0, 0.85 )	
 
-	if weather.rainActive and not cell.isInterior then
-        --Check if there's anything above the player's head		
-		checkForShelter()
-
-        
+	if weather.rainActive and not cell.isInterior then    
         --Raining
-		if weather.index == tes3.weather.rain and isSheltered == false then
+		if weather.index == tes3.weather.rain and common.data.isSheltered == false then
 			currentWetness = currentWetness + rainEffect * timeSinceLastRan * ( 1.0 - coverage )
 		
         --Thunder
-		elseif weather.index == tes3.weather.thunder and isSheltered == false then
+		elseif weather.index == tes3.weather.thunder and common.data.isSheltered == false then
 			currentWetness = currentWetness + thunderEffect * timeSinceLastRan * ( 1.0 - coverage )
 		end
 	else
-		isSheltered = true
+		common.data.isSheltered = true
 	end
 	--Drying off (indoors or clear weather)
-	if isSheltered then
+	if common.data.isSheltered then
 		local dryCoverageEffect = 1 - ( coverage / 2 )
 		local dryChange = ( tempMultiplier * timeSinceLastRan * dryingMultiplier * dryCoverageEffect )
 		currentWetness = currentWetness - dryChange
@@ -124,13 +119,16 @@ function this.calcaulateWetTemp(timeSinceLastRan)
 	--Update wetness and wetTemp on player data
 	common.data.wetness = currentWetness
 	common.data.wetTemp = (currentWetness / 100) * wetTempMax
+
+	--Check if there's anything above the player's head		
+	checkForShelter()
 end
 
 local function onLoad()
 	checkForShelter()
 end
 
-event.register("loaded", onLoad)
+event.register("Ashfall:dataLoaded", onLoad)
 
 return this
 

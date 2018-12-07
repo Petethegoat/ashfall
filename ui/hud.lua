@@ -4,7 +4,7 @@ local common = require("mer.ashfall.common")
 local tooltips = require("mer.ashfall.ui.hudTooltips")
 
 local outerFrame
-local midBlock
+local tempIndicatorBlock
 local conditionLabel
 local condIcon
 
@@ -16,12 +16,21 @@ local rightTempLimitBar
 
 local wetnessBar
 
+local IDs = {
+	mainHUDBlock = tes3ui.registerID("Ashfall:HUD_mainHUDBlock"),
+	topHUDBlock = tes3ui.registerID("Ashfall:HUD_topHUDBlock"),
+	wetnessBlock = tes3ui.registerID("Ashfall:HUD_wetnessBlock"),
+	conditionLabelBlock = tes3ui.registerID("Ashfall:conditionLabelBlock"),
+
+
+}
+
 function this.updateHUD()
 	if not common.data then return end
 	if outerFrame and leftTempPlayerBar and conditionLabel then
 		local tempPlayer = math.clamp(common.data.tempPlayer, -100, 100) or 0
 		local tempLimit =  math.clamp(common.data.tempLimit, -100, 100) or 0
-		local condition = common.conditionValues[( common.data.currentCondition  or "comfortable" )].text
+		local condition = common.tempConditions[( common.data.currentCondition  or "comfortable" )].text
 		local wetness = common.data.wetness or 0
 		wetness = math.clamp(wetness, 0, 100) or 0
 
@@ -72,6 +81,9 @@ local function quickFormat(element, padding)
 	return element
 end
 
+
+
+
 local topBlockID = tes3ui.registerID("Ashfall:topBlock")
 local function createHUD(e)
 	if not e.newlyCreated then return end
@@ -82,20 +94,20 @@ local function createHUD(e)
     local multiMenu = e.element
 
     -- Find the UI element that holds the sneak icon indicator.
-    local bottomLeftBar = multiMenu:findChild(tes3ui.registerID("MenuMulti_sneak_icon")).parent:createBlock({})
+    local bottomLeftBar = multiMenu:findChild(tes3ui.registerID("MenuMulti_sneak_icon")).parent:createBlock({id = IDs.mainHUDBlock})
 	
 	bottomLeftBar = quickFormat(bottomLeftBar, 2)
 	bottomLeftBar.flowDirection = "top_to_bottom"
 
 	---\
-
-		local topBlock = bottomLeftBar:createBlock({id = topBlockID})
+		---TOPBLOCK - Wetness Indicator and Condition state---
+		local topBlock = bottomLeftBar:createBlock({id = IDs.topHUDBlock})
 
 		topBlock.flowDirection = "left_to_right"
 		topBlock = quickFormat(topBlock, 0)
 		---\
-					
-			local wetnessBlock = topBlock:createBlock({"Ashfall:wetnessBlock"})
+			---WETNESS INDICATOR---	
+			local wetnessBlock = topBlock:createBlock({id = IDs.wetnessBlock})
             --Register Tooltip
             wetnessBlock:register("help", tooltips.wetnessIndicator )
 			wetnessBlock = quickFormat(wetnessBlock, 0)
@@ -112,15 +124,6 @@ local function createHUD(e)
 				wetnessBar.height = 20
 				wetnessBar.width = 36
 				wetnessBar.layoutOriginFractionX = 0.0
-				
-			local conditionLabelBlock = topBlock:createBlock({"Ashfall:conditionLabelBlock"})
-
-			conditionLabelBlock = quickFormat(conditionLabelBlock, 0)
-			conditionLabelBlock.paddingLeft = 2
-			---\
-				conditionLabel = conditionLabelBlock:createLabel({text = "Comfortable" })
-                --register tooltip
-                conditionLabel:register("help", tooltips.conditionIndicator )
 	
 			---\
 				local wetnessIcon = wetnessBlock:createImage({path="Textures/Ashfall/indicators/wetness.dds"})
@@ -128,30 +131,43 @@ local function createHUD(e)
 				wetnessIcon.width = 32
 				wetnessIcon.borderAllSides = 2
 				wetnessBar.layoutOriginFractionX = 0.0
+			
+			
+			---CONDITION STATE---	
+			local conditionLabelBlock = topBlock:createBlock({id = IDs.conditionLabelBlock})
+
+			conditionLabelBlock = quickFormat(conditionLabelBlock, 0)
+			conditionLabelBlock.paddingLeft = 2
+			---\
+				conditionLabel = conditionLabelBlock:createLabel({text = "Comfortable" })
+                --register tooltip
+                conditionLabel:register("help", tooltips.conditionIndicator )
+
 				
 	---\		
-		outerFrame = bottomLeftBar:createThinBorder({"Ashfall:outerFrame"})
+		---OUTER FRAME - sits below wetness and condition, houses temperature fillbars---
+		outerFrame = bottomLeftBar:createThinBorder()
 		outerFrame.flowDirection = "top_to_bottom"
 		outerFrame = quickFormat(outerFrame, 0)
 
 		---\
-			local colorBlock = outerFrame:createRect({id="Ashfall:colorBlock", color = tes3ui.getPalette("black_color")})
+			--fill background of outerframe with blackj
+			local colorBlock = outerFrame:createRect({color = tes3ui.getPalette("black_color")})
 			colorBlock.flowDirection = "top_to_bottom"
 			colorBlock = quickFormat(colorBlock, 0)
-
-						
-						
+		
 			---\
-				midBlock = colorBlock:createBlock({"Ashfall:midBlock"})
-				midBlock.flowDirection = "left_to_right"
-				midBlock = quickFormat(midBlock, 0)
+				---MID BLOCK
+				tempIndicatorBlock = colorBlock:createBlock()
+				tempIndicatorBlock.flowDirection = "left_to_right"
+				tempIndicatorBlock = quickFormat(tempIndicatorBlock, 0)
 				---\	
-					local leftMidBlock = midBlock:createBlock({tes3ui.registerID("Ashfall:leftMidBlock")})
-					leftMidBlock.flowDirection = "top_to_bottom"
-					leftMidBlock = quickFormat(leftMidBlock, 0)
+					local leftTempIndicatorBlock = tempIndicatorBlock:createBlock()
+					leftTempIndicatorBlock.flowDirection = "top_to_bottom"
+					leftTempIndicatorBlock = quickFormat(leftTempIndicatorBlock, 0)
 					---\
 						--Left Player Bar
-						leftTempPlayerBar = leftMidBlock:createFillBar({current = 50, max = 100})
+						leftTempPlayerBar = leftTempIndicatorBlock:createFillBar({current = 50, max = 100})
                         leftTempPlayerBar:register( "help", tooltips.playerLeftIndicator )
 						leftTempPlayerBar.widget.showText = false
 						leftTempPlayerBar.height = tempBarHeight
@@ -164,7 +180,7 @@ local function createHUD(e)
 						
 					---\	
 						--Left tempLimit bar
-						leftTempLimitBar = leftMidBlock:createFillBar({current = 50, max = 100})
+						leftTempLimitBar = leftTempIndicatorBlock:createFillBar({current = 50, max = 100})
                         leftTempLimitBar:register( "help", tooltips.limitLeftIndicator )
 						leftTempLimitBar.widget.showText = false
 						leftTempLimitBar.height = limitBarHeight
@@ -175,23 +191,23 @@ local function createHUD(e)
 						bar.layoutOriginFractionX = 1.0				
 						
 				---\		
-					local centreMidBlock = midBlock:createThinBorder({"Ashfall:centreMidBlock"})
-					--centreMidBlock.flowDirection = "top_to_bottom"
-					centreMidBlock = quickFormat(centreMidBlock, 2)
+					local centretempIndicatorBlock = tempIndicatorBlock:createThinBorder({"Ashfall:centretempIndicatorBlock"})
+					--centretempIndicatorBlock.flowDirection = "top_to_bottom"
+					centretempIndicatorBlock = quickFormat(centretempIndicatorBlock, 2)
 					
 					--cond icon: color based on player condition
-					condIcon = centreMidBlock:createImage({path="Textures/Ashfall/indicators/chilly.tga"})
+					condIcon = centretempIndicatorBlock:createImage({path="Textures/Ashfall/indicators/chilly.tga"})
 					condIcon.height = tempBarHeight + limitBarHeight - 4
 					condIcon.width = 5
 					condIcon.scaleMode = true
 					
 				---\		
-					local rightMidBlock = midBlock:createBlock({tes3ui.registerID("Ashfall:rightMidBlock")})
-					rightMidBlock.flowDirection = "top_to_bottom"
-					rightMidBlock = quickFormat(rightMidBlock, 0)		
+					local righttempIndicatorBlock = tempIndicatorBlock:createBlock({tes3ui.registerID("Ashfall:righttempIndicatorBlock")})
+					righttempIndicatorBlock.flowDirection = "top_to_bottom"
+					righttempIndicatorBlock = quickFormat(righttempIndicatorBlock, 0)		
 					---\
 						--Right Color Bar
-						rightTempPlayerBar = rightMidBlock:createFillBar({max = 100})
+						rightTempPlayerBar = righttempIndicatorBlock:createFillBar({max = 100})
                         rightTempPlayerBar:register( "help", tooltips.playerRightIndicator )
 						rightTempPlayerBar.widget.showText = false
 						rightTempPlayerBar.height = tempBarHeight
@@ -200,7 +216,7 @@ local function createHUD(e)
 						
 					--\	
 						--Right tempLimit bar
-						rightTempLimitBar = rightMidBlock:createFillBar({current = 50, max = 100})
+						rightTempLimitBar = righttempIndicatorBlock:createFillBar({current = 50, max = 100})
                         rightTempLimitBar:register( "help", tooltips.limitRightIndicator )
 						rightTempLimitBar.widget.showText = false
 						rightTempLimitBar.height = limitBarHeight

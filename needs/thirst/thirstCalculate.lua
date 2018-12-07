@@ -4,20 +4,23 @@
 
 local common = require("mer.ashfall.common")
 local this = {}
-local thirstRate = 2.0
+local thirstRate = 4.0
 local heatMulti = 2.0
 local thirstEffectMax = 1.5
-function this.calculateThirstLevel(scriptInterval)
+function this.calculate(scriptInterval)
     local thirst = common.data.thirst or 0
     local temp = common.data.tempPlayer or 0
+
+    --Hotter it gets the faster you become thirsty
     local heatEffect = math.clamp(temp, 0, 100 )
     heatEffect = math.remap(heatEffect, 0, 100, 1.0, heatMulti)
+
+    --Calculate thirst
     thirst = thirst + ( scriptInterval * thirstRate * heatEffect )
     thirst = math.clamp(thirst, 0, 100)
-    --Actual thirst
     common.data.thirst = thirst
 
-    --Thirst temperature effect. Thirstier you are, the more extreme heat temps are
+    --The thirstier you are, the more extreme heat temps are
     local thirstEffect = math.remap(thirst, 0, 100, 1.0, thirstEffectMax)
     common.data.thirstEffect = thirstEffect
 end

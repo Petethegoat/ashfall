@@ -6,7 +6,7 @@
 local common = require("mer.ashfall.common")
 local this = {}
 
-local coldLevelNeeded = common.conditionValues.veryCold.max
+local coldLevelNeeded = common.tempConditions.veryCold.max
 
 
 local function addBreath(node, x, y, z)

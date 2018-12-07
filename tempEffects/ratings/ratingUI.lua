@@ -60,11 +60,19 @@ function this.updateArmorRatings()
         inventoryMenu:updateLayout()
     end
 end
-
+local IDs = {
+    ratingsBlock = tes3ui.registerID("Ashfall:ratingsBlock"),
+    warmthBlock = tes3ui.registerID("Ashfall:ratings_warmthBlock"),
+    warmthHeader = tes3ui.registerID("Ashfall:ratings_warmthHeader"),
+    warmthValue = tes3ui.registerID("Ashfall:ratings_warmthValue"),
+    coverageBlock = tes3ui.registerID("Ashfall:ratings_coverageBlock"),
+    coverageHeader = tes3ui.registerID("Ashfall:ratings_coverageHeader"),
+    coverageValue = tes3ui.registerID("Ashfall:ratings_coverageValue")
+}
 --[[
     Insert ratings into Equipment tooltips
 ]]
-function this.insertRatings(e)
+local function insertRatings(e)
     local tooltip = e.tooltip
     if not e.tooltip then return end
     if not e.object then return end
@@ -95,7 +103,7 @@ function this.insertRatings(e)
         end
         
         
-        local ratingsBlock = innerBlock:createBlock({ id = tes3ui.registerID("Ashfall:ratings_block") })
+        local ratingsBlock = innerBlock:createBlock({ id = IDs.ratingsBlock })
         ratingsBlock.flowDirection = "top_to_bottom"
         ratingsBlock.paddingTop = 0
         ratingsBlock.paddingBottom = 0
@@ -104,33 +112,33 @@ function this.insertRatings(e)
         ratingsBlock.width = 300
         ratingsBlock.autoHeight = true
         
-        local warmthBlock = ratingsBlock:createBlock({ id = tes3ui.registerID("Ashfall:ratings_warmthBlock") })
+        local warmthBlock = ratingsBlock:createBlock({ id = IDs.warmthBlock })
         warmthBlock.flowDirection = "left_to_right"
         warmthBlock.widthProportional = 1.0
         warmthBlock.childAlignX  = 0.5
         warmthBlock.autoHeight = true
         
-        local warmthHeader = warmthBlock:createLabel({ id = tes3ui.registerID("Ashfall:ratings_warmthHeader"), text = "Warmth Rating: " })
+        local warmthHeader = warmthBlock:createLabel({ id = IDs.warmthHeader, text = "Warmth Rating: " })
         quickFormat(warmthHeader)
         --warmthHeader.color = tes3ui.getPalette("header_color")
         
         local warmth = " " .. ratingsCommon.getWarmthRating( ratingsCommon.calculateItemWarmth( e.object ) )
-        local warmthValue = warmthBlock:createLabel({ id = tes3ui.registerID("Ashfall:ratings_warmthValue"), text = warmth })
+        local warmthValue = warmthBlock:createLabel({ id = IDs.warmthValue, text = warmth })
         warmthValue.autoHeight = true
         warmthValue.autoWidth = true
         
-        local coverageBlock = ratingsBlock:createBlock({ id = tes3ui.registerID("Ashfall:ratings_coverageBlock") })
+        local coverageBlock = ratingsBlock:createBlock({ id = IDs.coverageBlock })
         coverageBlock.flowDirection = "left_to_right"
         coverageBlock.widthProportional = 1.0
         coverageBlock.childAlignX  = 0.5
         coverageBlock.autoHeight = true
         
-        local coverageHeader = coverageBlock:createLabel({ id = tes3ui.registerID("Ashfall:ratings_coverageHeader"), text = "Coverage Rating: " })
+        local coverageHeader = coverageBlock:createLabel({ id = IDs.coverageHeader, text = "Coverage Rating: " })
         quickFormat(coverageHeader)
         --coverageHeader.color = tes3ui.getPalette("header_color")
         
         local coverage = " " .. ratingsCommon.getCoverageRating( ratingsCommon.calculateItemCoverage( e.object ) )
-        local coverageValue = coverageBlock:createLabel({ id = tes3ui.registerID("Ashfall:ratings_coverageValue"), text = coverage })
+        local coverageValue = coverageBlock:createLabel({ id = IDs.coverageValue, text = coverage })
         coverageValue.autoHeight = true
         coverageValue.autoWidth = true            
         
@@ -139,6 +147,6 @@ function this.insertRatings(e)
     end
 end
 
-
+event.register("uiObjectTooltip", insertRatings )
 
 return this

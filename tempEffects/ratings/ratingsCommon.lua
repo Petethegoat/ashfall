@@ -9,8 +9,8 @@ this.data = {
     armorData = 
     {
         warmth = {
-            cachePath = "ashfall/generated/armor_warmth",
-            presetsPath = "ashfall/presets/armor_warmth",
+            cachePath = "ashfall/ratings/generated/armor_warmth",
+            presetsPath = "ashfall/ratings/presets/armor_warmth",
             maxValue = warmthMax,
             slotRatios = 
             {
@@ -69,8 +69,8 @@ this.data = {
         },
         coverage = {
             maxValue = coverageMax,
-            cachePath = "ashfall/generated/armor_coverage",
-            presetsPath = "ashfall/presets/armor_coverage",
+            cachePath = "ashfall/ratings/generated/armor_coverage",
+            presetsPath = "ashfall/ratings/presets/armor_coverage",
             slotRatios = 
             {
                 ["helmet"]          = 0.15,
@@ -129,8 +129,8 @@ this.data = {
     clothingData = {
         warmth = {
             maxValue = warmthMax,
-            cachePath = "ashfall/generated/clothing_warmth",
-            presetsPath = "ashfall/presets/clothing_warmth",
+            cachePath = "ashfall/ratings/generated/clothing_warmth",
+            presetsPath = "ashfall/ratings/presets/clothing_warmth",
             slotRatios =  
             {   --These don't have to add up to 1.0 because of layering
                 --"1.0" Total is like, a basic set of gear, not fully kitted out
@@ -157,8 +157,8 @@ this.data = {
         },
         coverage = {
             maxValue = coverageMax,
-            cachePath = "ashfall/generated/clothing_coverage",
-            presetsPath = "ashfall/presets/clothing_coverage",
+            cachePath = "ashfall/ratings/generated/clothing_coverage",
+            presetsPath = "ashfall/ratings/presets/clothing_coverage",
             type = "coverage",
             slotRatios =  
             {

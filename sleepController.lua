@@ -1,10 +1,13 @@
 local common = require("mer.ashfall.common")
 local this = {}
 
-local coldRestLimit = common.conditionValues.veryCold.min
-local hotRestLimit = common.conditionValues.veryHot.max
+local coldRestLimit = common.tempConditions.veryCold.min
+local hotRestLimit = common.tempConditions.veryHot.max
 local interruptText = ""
 local isScripted
+
+local bedTemp = 20
+local tentTemp = 35
 
 local function setRestValues(e)
     if not common.data then return end
@@ -13,18 +16,11 @@ local function setRestValues(e)
     --Set interrupt text
     local tempText
     local temp = common.data.tempLimit
-	if temp <= 0 then
-        tempText = "cold"
-    elseif temp >= 0 then
-        tempText = "hot"
-    end
-    local restText
-    if e.allowRest then
-        restText = "rest"
-    else
-        restText = "wait"
-    end     
-    interruptText = "It is too " .. tempText .. " to " .. restText .. ". You must find shelter."
+    local tempText = ( temp < 0 ) and "cold" or "hot"
+    local restText = ( e.allowRest ) and "rest" or "wait"
+    interruptText = string.format("It is too %s to %s, you must find shelter!", tempText, restText)
+
+
 end
 
 
@@ -34,8 +30,22 @@ end
 --replacing the text and removing rest/wait buttons
 local function activateRestMenu (e)
     if not common.data then return end
+
+    if isScripted then
+        local RestText = e.element:findChild(tes3ui.registerID("MenuRestWait_label_text"))
+        local warmthRatingLabelText = string.format("Warmth Rating: %s", bedTemp)
+        RestText.text = RestText.text .. " (" .. warmthRatingLabelText ..")"
+
+        --manually update temp so you can see what it will be with the bedTemp added
+        if common.data.tempLimit < 0 then
+            common.data.bedTemp = bedTemp
+            common.data.tempLimit = common.data.tempLimit + bedTemp
+        end
+        require("mer.ashfall.tempEffects.calcTemp").calculateTemp(0)
+    end
+
     local temp = common.data.tempLimit + ( isScripted and common.bedTemp or 0 )
-    if temp < coldRestLimit or temp > hotRestLimit then
+    if temp < ( coldRestLimit ) or temp > ( hotRestLimit - common.data.bedTemp ) then
 
         local restMenu = e.element
         
@@ -54,25 +64,40 @@ local function activateRestMenu (e)
             element.visible = false
         end
         restMenu:updateLayout()
-	end
+    end
 end
 
 --Wake up if sleeping and ENVIRONMENT is too cold/hot
 function this.checkSleeping()
+    --whether waiting or sleeping, wake up
     if tes3.menuMode() then
         if isScripted then
-            common.data.bedTemp = common.bedTemp
+            --mwse.log("using bed")
+            common.data.usingBed = true
+            common.data.bedTemp = bedTemp
+        --not using a bed at all
         else
-            common.data.bedTemp = 0
+           -- mwse.log("not using bed")
+            common.data.usingBed = false
         end
 
         local temp = common.data.tempLimit
         if temp < coldRestLimit or temp > hotRestLimit then
             tes3.runLegacyScript({ command = "WakeUpPC" })
             tes3.messageBox({ message = interruptText, buttons = { "Okay" } })
-		end
-	end
+        end
+    else
+        common.data.bedTemp = 0
+    end
 end
+
+local insideTentGlobal = tes3.findGlobal("a_inside_tent")
+function this.checkForTent()
+    if insideTentGlobal.value == 1 then
+        common.data.tentTemp = tentTemp
+    end
+end
+
 
 
 event.register("uiActivated", activateRestMenu, { filter = "MenuRestWait" })

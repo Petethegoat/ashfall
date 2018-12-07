@@ -103,6 +103,6 @@ event.register("equipped", calculate)
 event.register("Ashfall:dataLoaded", calculate)
 --event.register("loaded", calculate)
 
-event.register("uiObjectTooltip", ui.insertRatings )
+
 
 return this

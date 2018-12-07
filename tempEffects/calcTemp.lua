@@ -7,7 +7,7 @@
 local this = {}
 
 local common = require("mer.ashfall.common")
-
+local hud = require("mer.ashfall.ui.hud")
 -------------------------------------CONFIG VALUES-------------------------------------
 
 --Determines how fast tempLimit catches up to tempReal
@@ -18,7 +18,9 @@ local playerRate = 2.0
 local minPlayerDiff = 20
 
 --"Region" temp when inside
-local interiorWeatherMultiplier = 0.3
+local interiorWeatherMultiplier = 0.4
+--All effects reduced slightly when inside
+local interiorRealTempMultiplier = 0.7
 ----------------------------------------------------------------------------------------
 
 --temperature variables
@@ -43,6 +45,8 @@ local gameHour
 ]]-------------------------------------------------------------------
 function this.calculateTemp(timerInterval)
 	if not common.data then return end
+
+
     tempRaw = common.data.tempRaw or 0
     tempReal = common.data.tempReal or 0
     tempLimit = common.data.tempLimit or 0
@@ -92,28 +96,36 @@ function this.calculateTemp(timerInterval)
                  + frostDamTemp
                  + clothingTemp
                  + armorTemp
-                 + bedTemp
-                 + tentTemp
                  + furTemp
-    )
+	)
     common.data.tempRaw = tempRaw
 	--cold exclusive effects
 	if tempReal < 0 then
-		tempReal = (
-            tempReal * hungerEffect
-                     * resistFrostEffect
-                     * alcoholEffect
-                     * vampireColdEffect
+		tempReal =  math.min( (tempReal + bedTemp + tentTemp ), 0 )
+		tempReal = ( 
+			tempReal 
+			* hungerEffect
+			* resistFrostEffect
+			* alcoholEffect
+			* vampireColdEffect
         )
 	--hot exclusive effects
 	elseif tempReal > 0 then
 		tempReal = (
-            tempReal * thirstEffect
-                    * resistFireEffect
-                    * alcoholEffect
-                    * vampireWarmEffect
+			tempReal 
+			* thirstEffect
+            * resistFireEffect
+            * alcoholEffect
+            * vampireWarmEffect
         )
 	end
+
+	--On top of minimising outside weather effects, all other effects
+	-- are reduced indoors as well, for the sake of reducing annoyance
+	if cell.isInterior then
+		tempReal = tempReal * interiorRealTempMultiplier
+	end
+
     common.data.tempReal = tempReal
 	--[[------------------------------------
 	Calculate tempLimit
@@ -161,7 +173,7 @@ function this.calculateTemp(timerInterval)
 	tempPlayer = tempPlayer + ( ( tempPlayer < tempLimit) and playerChange or -playerChange )
 	common.data.tempPlayer = tempPlayer
     -----------------------------------------------
-
+	hud.updateHUD()
 end
 
 --Press G key to see temperature updates

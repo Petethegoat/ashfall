@@ -22,7 +22,15 @@ local function onMenuSelect(e)
 end
 
 local function onActivate(e)
-	if ( e.target.object.id == "fw_bedroll" ) then
+	if ( e.target.object.id == "ashfall_bedroll" ) then
+		if tes3.player.cell.restingIsIllegal then
+			tes3.setGlobal("ashfall_sleep_illegal", 1)
+		else
+			tes3.setGlobal("ashfall_sleep_illegal", 0)
+		end
+	end
+
+	--[[if ( e.target.object.id == "fw_bedroll" ) then
 		bedRef = e.target
 		menuButtons = {pickUpButton, cancelButton}
 		if not tes3.getPlayerCell().restingIsIllegal then
@@ -33,7 +41,7 @@ local function onActivate(e)
 			buttons = menuButtons,
 			callback = onMenuSelect
 		})
-	end
+	end]]--
 end
 
 event.register("activate", onActivate )

@@ -37,7 +37,32 @@ function this.hourToClockTime ( time )
 	return ( formattedTime )
 end	
 
-this.conditionValues = {
+this.sleepConditions = {
+	exhausted	= { text = "Exhausted" 		, min = 0	 , max = 20		, spell = nil },
+	veryTired	= { text = "Very Tired"		, min = 20	 , max = 40		, spell = nil },
+	tired		= { text = "Tired"		 	, min = 40	 , max = 60		, spell = nil },
+	rested		= { text = "Rested"			, min = 60	 , max = 80		, spell = nil },
+	wellRested	= { text = "Well Rested"	, min = 80	 , max = 100	, spell = nil },
+}
+
+this.hungerConditions = {
+	starving	= { text = "Starving" 		, min = 80	 , max = 100	, spell = nil },
+	veryHungry	= { text = "Very Hungry"	, min = 60	 , max = 80		, spell = nil },
+	hungry		= { text = "Hungry" 		, min = 40	 , max = 60		, spell = nil },
+	satiated	= { text = "Peckish"		, min = 20	 , max = 40		, spell = nil },
+	wellFed		= { text = "Well Fed"		, min = 0	 , max = 20		, spell = nil },
+}
+
+this.thirstConditions = {
+	dehydrated	= { text = "Dehydrated" 	, min = 80	 , max = 100	, spell = nil },
+	parched		= { text = "Parched"		, min = 60	 , max = 80		, spell = nil },
+	veryThirsty	= { text = "Very Thirsty" 	, min = 40	 , max = 60		, spell = nil },
+	thirsty		= { text = "Thirsty"		, min = 20	 , max = 40		, spell = nil },
+	hydrated	= { text = "Hydrated"		, min = 0	 , max = 20		, spell = nil },
+}
+
+
+this.tempConditions = {
     scorching 	= { text = "Scorching"   , min = 80   , max = 100	, spell = "fw_cond_scorching" } ,
     veryHot 	= { text = "Very Hot"    , min = 60   , max = 80	, spell = "fw_cond_very_hot"  } ,
     hot 		= { text = "Hot"         , min = 40   , max = 60  	, spell = "fw_cond_hot"       } ,
@@ -49,7 +74,7 @@ this.conditionValues = {
     freezing 	= { text = "Freezing"    , min = -100 , max = -80	, spell = "fw_cond_freezing"  }
 }
 
-this.wetnessValues = {
+this.wetConditions = {
 	soaked  =   { text = "Soaked"	, min = 75, max = 100  	, spell = "fw_wetcond_soaked" 	},
 	wet     =   { text = "Wet"		, min = 50, max = 75  	, spell = "fw_wetcond_wet" 		},
 	damp    =   { text = "Damp"	    , min = 25, max = 50  	, spell = "fw_wetcond_damp" 	},
@@ -57,19 +82,17 @@ this.wetnessValues = {
 }
 
 
-this.bedTemp = 20
-
 local function onSkillsReady()
 	skillModule.registerSkill("Survival", 
 	{	name 			=		"Survival", 
-		icon 			=		"Icons/Ashfall/survival.dds", 
+		icon 			=		"Icons/ashfall/survival.dds", 
 		value			= 		30,
 		attribute 		=		tes3.attribute.endurance,
 		description 	= 		"The Survival skill determines your ability to deal with harsh weather conditions and perform actions such as chopping wood and creating campfires effectively.",
 		specialization 	= 		tes3.specialization.stealth
 		}
 	)
-	print("Ashfall skills registered")
+	mwse.log("Ashfall skills registered")
 end
 
 if skillModule then
@@ -83,7 +106,7 @@ local function onLoaded()
 	data.Ashfall = data.Ashfall or {}
 	-- create a public shortcut
 	this.data = data.Ashfall
-	print("Ashfall: Common.lua loaded successfully")
+	mwse.log("Ashfall: Common.lua loaded successfully")
 	
 	event.trigger("Ashfall:dataLoaded")
 end

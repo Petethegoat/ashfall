@@ -13,39 +13,39 @@ local common = require("mer.ashfall.common")
 local currentWeather
 
 local weatherValues = { 
-	[tes3.weather.blight]	= {	min	= -30	, max =  40  },
-	[tes3.weather.ash] 		= {	min	= -30	, max =  35 },
-	[tes3.weather.clear] 	= {	min	= -50	, max =  20	 },
-	[tes3.weather.cloudy] 	= {	min	= -55	, max =  0	 },
-	[tes3.weather.overcast] = {	min	= -60	, max = -5	 },
-	[tes3.weather.foggy] 	= {	min	= -65	, max = -10 },
-	[tes3.weather.rain] 	= {	min	= -70	, max = -30	 },
-	[tes3.weather.thunder] 	= {	min	= -75	, max = -40	 },
-	[tes3.weather.snow] 	= {	min	= -90	, max = -50	 },
-	[tes3.weather.blizzard] = {	min	= -95	, max = -70	 }
+	[tes3.weather.blight]	= {	min	= -40	, max =  25  },
+	[tes3.weather.ash] 		= {	min	= -40	, max =  20 },
+	[tes3.weather.clear] 	= {	min	= -45	, max =  10	 },
+	[tes3.weather.cloudy] 	= {	min	= -50	, max =  0	 },
+	[tes3.weather.overcast] = {	min	= -50	, max = -5	 },
+	[tes3.weather.foggy] 	= {	min	= -50	, max = -10 },
+	[tes3.weather.rain] 	= {	min	= -55	, max = -30	 },
+	[tes3.weather.thunder] 	= {	min	= -60	, max = -35	 },
+	[tes3.weather.snow] 	= {	min	= -65	, max = -45	 },
+	[tes3.weather.blizzard] = {	min	= -70	, max = -50	 }
 }
 
 --Alter min/max weather values 
 local regionValues = {
-	["Moesring Mountains Region"]	= {	min	= -50 , max =  -50 },
-	["Felsaad Coast Region"]		= {	min	= -45 , max =  -50 },
-	["Isinfier Plains Region"]	 	= {	min	= -40 , max =  -40 },
-	["Brodir Grove Region"]		 	= {	min	= -40 , max =  -40 },
-	["Thirsk Region"]				= {	min	= -35 , max =  -35 },
-	["Hirstaang Forest Region"]		= {	min	= -35 , max =  -35 },
+	["Moesring Mountains Region"]	= {	min	= -40 , max =  -20 },
+	["Felsaad Coast Region"]		= {	min	= -40 , max =  -20 },
+	["Isinfier Plains Region"]	 	= {	min	= -40 , max =  -20 },
+	["Brodir Grove Region"]		 	= {	min	= -40 , max =  -15 },
+	["Thirsk Region"]				= {	min	= -35 , max =  -10 },
+	["Hirstaang Forest Region"]		= {	min	= -35 , max =  -10 },
 	--Vvardenfell
 	--Cold
-	["Sheogorad"]			 		= {	min	= -30 , max =  -30 },
-	["Azura's Coast Region"]		= {	min	= -10 , max =  10 },
+	["Sheogorad"]			 		= {	min	= -30 , max =  -10 },
+	["Azura's Coast Region"]		= {	min	= -20 , max =  10 },
 	--Normal
-	["Ascadian Isles Region"]		= {	min	= 0 , max =  0 }, --Perfectly normal weather here
-	["Grazelands Region"]			= {	min	= -10 , max =  20 },-- gets cold at night, warm in day
+	["Ascadian Isles Region"]		= {	min	= -10 , max =  10 }, --Perfectly normal weather here
+	["Grazelands Region"]			= {	min	= -20 , max =  20 },-- gets cold at night, warm in day
 	--Hot
-	["Bitter Coast Region"]			= {	min	= 10 , max =  10 }, 
-	["West Gash Region"]		 	= {	min	= 20 , max =  30 },
-	["Ashlands Region"]				= {	min	= 30 , max =  40 },
-	["Molag Mar Region"]			= {	min	= 40 , max =  50 },
-	["Red Mountain Region"]			= {	min	= 50 , max =  60 },
+	["Bitter Coast Region"]			= {	min	= 0 , max =  10 }, 
+	["West Gash Region"]		 	= {	min	= 0 , max =  20 },
+	["Ashlands Region"]				= {	min	= 10 , max =  25 },
+	["Molag Mar Region"]			= {	min	= 40 , max =  30 },
+	["Red Mountain Region"]			= {	min	= 50 , max =  35 },
 }
 
 --Keyword search in interior names for cold caves etc

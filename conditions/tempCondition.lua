@@ -49,13 +49,13 @@ local function setSpellStrength(spellID)
 end
 
 --Called in tempTimer
-function this.updateConditionState()
+function this.updateCondition()
 	if not common.data then return end
 	
 	previousCondition = previousCondition or "comfortable"
 
 	local tempPlayer = common.data.tempPlayer or 0
-    for conditionType, condition in pairs(common.conditionValues) do
+    for conditionType, condition in pairs(common.tempConditions) do
         if tempPlayer >= condition.min and tempPlayer <= condition.max then
             common.data.currentCondition = conditionType
 			
@@ -74,14 +74,14 @@ function this.updateConditionState()
 				end
 				
                 
-				setSpellStrength(common.conditionValues[common.data.currentCondition].spell)
+				setSpellStrength(common.tempConditions[common.data.currentCondition].spell)
                 
 				--Remove old condition
-				for _, innerLoopCondition in pairs(common.conditionValues) do
+				for _, innerLoopCondition in pairs(common.tempConditions) do
 					mwscript.removeSpell({reference= tes3.player , spell = innerLoopCondition.spell}) 
 				end
 				--Add new condition
-                local newSpell = common.conditionValues[common.data.currentCondition].spell
+                local newSpell = common.tempConditions[common.data.currentCondition].spell
 				if newSpell then	
 					mwscript.addSpell({reference = tes3.player, spell = newSpell })
 				end
@@ -89,8 +89,10 @@ function this.updateConditionState()
 				previousCondition = common.data.currentCondition
                 
                 
-                --This needs wrapping in an MCM option
-				tes3.messageBox("You are " .. string.lower( common.conditionValues[common.data.currentCondition].text ) )
+				--This needs wrapping in an MCM option
+				if common.data.showTempMessages then
+					tes3.messageBox("You are " .. string.lower( common.tempConditions[common.data.currentCondition].text ) )
+				end
 			end
 			break
 		end

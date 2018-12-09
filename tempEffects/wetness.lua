@@ -40,6 +40,7 @@ local function checkForShelter()
 		local result = tes3.rayTest{
 			position = newPlayerPos,
 			direction = {0, 0, 1},
+			--useBackTriangles = true
 		}
 		if result and result.reference and result.reference.object and result.reference.object.objectType == tes3.objectType.static then 
 			--tes3.messageBox("sheltered")

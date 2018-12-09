@@ -14,7 +14,7 @@ local hud = require("mer.ashfall.ui.hud")
 local limitRate = 50
 
 --Determines how fast tempPlayer catches up to tempLimit
-local playerRate = 2.0
+local playerRate = 3.5
 local minPlayerDiff = 20
 
 --"Region" temp when inside

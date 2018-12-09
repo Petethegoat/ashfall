@@ -90,8 +90,7 @@ local function onSkillsReady()
 		attribute 		=		tes3.attribute.endurance,
 		description 	= 		"The Survival skill determines your ability to deal with harsh weather conditions and perform actions such as chopping wood and creating campfires effectively.",
 		specialization 	= 		tes3.specialization.stealth
-		}
-	)
+	})
 	mwse.log("Ashfall skills registered")
 end
 

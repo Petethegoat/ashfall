@@ -7,15 +7,15 @@
 
 
 local thirstCommon = require("mer.ashfall.needs.thirst.thirstCommon")
+local activators = require("mer.ashfall.activators")
 -- register UI Ids
 
 local id_waterTooltip = tes3ui.registerID("Ashfall:waterTooltip")
 local id_waterTooltipLabel = tes3ui.registerID("Ashfall:waterTooltipLabel")
 
-local waterSources = {
-	["ex_nord_well"] = "Well",
-	["kegstand"] = "Keg"
-}
+
+
+local lookingAtWater
 
 --Create water/well tooltip if it doesn't exist
 local function createTooltip(text)
@@ -31,7 +31,9 @@ local function createTooltip(text)
 		label.autoHeight = true
 		label.autoWidth = true
 		label.wrapText = true
-		label.justifyText = "center"
+        label.justifyText = "center"
+        
+        lookingAtWater = true
 	end
 end
 
@@ -39,7 +41,8 @@ end
 local function destroyTooltip()
 	local tooltip = tes3ui.findMenu(id_waterTooltip)
 	if tooltip then
-		tooltip:destroy()
+        tooltip:destroy()
+        lookingAtWater = false
 	end
 end
 
@@ -129,11 +132,8 @@ local function onActivateWater(e)
 	local inputController = tes3.worldController.inputController
 	local keyTest = inputController:keybindTest(tes3.keybind.activate)
 	if (keyTest) then
-		local tooltip = tes3ui.findMenu(id_waterTooltip)
-		if tooltip then
-			if e.pressed then
-				callWatermenu()
-			end
+        if lookingAtWater then
+			callWatermenu()
 		end
 	end
 end
@@ -141,47 +141,15 @@ end
 
 --Use rayTest to see if the player is looking at a water source
 local function checkForWater()
-	if not tes3.menuMode() then
-		local camPosition = tes3.getCameraPosition()
-        local result = tes3.rayTest{
-            position = camPosition,
-			direction = tes3.getCameraVector(),
-		}
-		if not result then return end
-		local distance = camPosition:distance(result.intersection)
-
-		if distance < 200 then
-			local targetRef = result.reference
-			if targetRef then
-				--Open menu for water well
-				for pattern, name in pairs(waterSources) do
-					if string.find(string.lower(targetRef.id), pattern) then
-						createTooltip(name)
-						return
-					end
-				end
-			end
-		end
-
-		--Check if player is looking at water and nothing else
-		local cell =  tes3.player.cell
-		local waterLevel = cell.waterLevel or 0
-		local intersection = result.intersection
-		local adjustedIntersection = tes3vector3.new( intersection.x, intersection.y, waterLevel )
-		local adjustedDistance = camPosition:distance(adjustedIntersection)
-		if adjustedDistance < 300 and cell.hasWater then
-			local blocked
-			if result.reference then
-				if result.reference.object.objectType ~= tes3.objectType.static then
-					blocked = true
-				end
-			end
-			if camPosition.z > waterLevel and intersection.z < waterLevel and not blocked then
-				createTooltip("Water")
-				return
-			end
-		end
-
+    if not tes3.menuMode() then
+        local activator = activators.currentActivator
+        if activator == activators.activatorList.water then
+            createTooltip("Water")
+            return
+        elseif activator == activators.activatorList.well then
+            createTooltip("Well")
+            return
+        end
 	end
 	destroyTooltip()
 end

@@ -33,7 +33,9 @@ function this.doFrostBreath()
     for ref in tes3.getPlayerCell():iterateReferences(tes3.objectType.npc) do
         if ( ref.mobile and ref.sceneNode ) then
             local node = ref.sceneNode:getObjectByName("Bip01 Head")
-            if isCold and ref.mobile.underwater == false then
+            local isAlive = ( ref.mobile.health.current > 0 )
+            local isAboveWater = ( ref.mobile.underwater == false )
+            if isCold and isAboveWater and isAlive then
                 addBreath(node, 0, 11, 0)
             else
                 removeBreath(node)
@@ -41,6 +43,7 @@ function this.doFrostBreath()
         end
     end
 
+    
     node = tes3.player.sceneNode and tes3.player.sceneNode:getObjectByName("Bip01 Head")
     if node then
         if isCold and tes3.mobilePlayer.underwater == false then
@@ -52,7 +55,8 @@ function this.doFrostBreath()
     
     node = tes3.worldController.worldCamera.cameraRoot
     if node then 
-        if isCold and not tes3.is3rdPerson() and tes3.mobilePlayer.underwater == false then
+        local isAboveWater = (tes3.mobilePlayer.underwater == false )
+        if isCold and not tes3.is3rdPerson() and isAboveWater then
             addBreath(node, 0, 5, -16)  
         else
             removeBreath(node)

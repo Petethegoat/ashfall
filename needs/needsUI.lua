@@ -19,12 +19,29 @@ local IDs = {
         fillBar = tes3ui.registerID("Ashfall:sleepFillBar"),
         condition = tes3ui.registerID("Ashfall:sleepConditionId"),
         border = tes3ui.registerID("Ashfall:sleepBorder")
-    }
+    },
+    needsBlock = tes3ui.registerID("Ashfall:needsBlock"),
 }
+
+local function updateSleepBlock(menu)
+    --Update Sleep
+    local sleepFillBar = menu:findChild(IDs.sleep.fillBar)
+    local sleepConditionLabel = menu:findChild(IDs.sleep.condition)
+    if sleepFillBar and sleepConditionLabel then
+
+        --update condition
+        local condition = common.data.sleepCondition or "rested"
+        sleepConditionLabel.text = common.sleepConditions[ condition].text or common.sleepConditions.rested.text
+
+        --update fillBar
+        local sleepLevel = common.data.sleep or 100
+        sleepFillBar.widget.current = sleepLevel
+    end
+end
 
 function this.updateNeedsUI()
     if not common.data then return end
-    local inventoryMenu = tes3ui.findMenu(tes3ui.registerID("MenuStat"))
+    local inventoryMenu = tes3ui.findMenu(tes3ui.registerID("MenuInventory"))
 
     if inventoryMenu then   
         --Update Hunger
@@ -55,29 +72,20 @@ function this.updateNeedsUI()
             thirstFillBar.widget.current = 100 - thirstLevel
         end
 
-        --Update Sleep
-        local sleepFillBar = inventoryMenu:findChild(IDs.sleep.fillBar)
-        local sleepConditionLabel = inventoryMenu:findChild(IDs.sleep.condition)
-        if sleepFillBar and sleepConditionLabel then
+        --Update Sleep 
+        updateSleepBlock(inventoryMenu)
 
-            --update condition
-            local condition = common.data.sleepCondition or "rested"
-            sleepConditionLabel.text = common.sleepConditions[ condition].text or common.sleepConditions.rested.text
-
-            --update fillBar
-            local sleepLevel = common.data.sleep or 100
-            sleepFillBar.widget.current = sleepLevel
-        end
         inventoryMenu:updateLayout()
     end
 end
 
 local function setupNeedsBlock(element)
     element.borderAllSides = 4
-    element.paddingTop = 6
-    element.paddingLeft = 5
-    element.paddingRight = 5
-    element.paddingBottom = 2
+    element.borderTop = 0
+    element.paddingTop = 0
+    element.paddingLeft = 0
+    element.paddingRight = 0
+    element.paddingBottom = 0
     element.autoHeight = true
     element.autoWidth = true
     element.widthProportional = 1
@@ -89,35 +97,33 @@ local function setupNeedsElementBlock(element)
     element.autoHeight = true
     element.autoWidth = true
 
-    element.paddingBottom = 5
+    element.paddingBottom = 1
     element.widthProportional = 1
     element.flowDirection = "left_to_right"
 end
 
 local function setupNeedsBar(element)
     element.widget.showText = false
-    element.height = 28
+    element.height = 20
     element.widthProportional = 1.0
 end
 
 local function setupConditionLabel(element)
-    element.absolutePosAlignX = 0.03
-    element.absolutePosAlignY = 0.4
+    element.absolutePosAlignX = 0.5
+    element.borderLeft = 2
+    element.absolutePosAlignY = 0.0
     element.widthProportional = 1.0
-    element.wrapText = true
-    element.justifyText = "center"
+    --element.wrapText = true
+    --element.justifyText = "center"
 end
 
-local function createNeedsUI(e)
-    local leftPane = e.element:findChild(tes3ui.registerID("MenuStat_left_main"))
+local function createNeedsUI(needsBlock)
+    
 
-
-    ---Needs Block
-    local needsBlock = leftPane:createThinBorder( )
     setupNeedsBlock(needsBlock)
-    local needsHeader = needsBlock:createLabel({text = "Needs"})
+   --[[ local needsHeader = needsBlock:createLabel({text = "Needs"})
     needsHeader.color = tes3ui.getPalette("header_color")
-    needsHeader.borderBottom = 6
+    needsHeader.borderBottom = 6]]--
 
 
     --Hunger
@@ -156,9 +162,48 @@ local function createNeedsUI(e)
     local sleepConditionLabel = sleepBlock:createLabel({ id = IDs.sleep.condition, text = "Rested"})
     setupConditionLabel(sleepConditionLabel)
 
-    
+    this.updateNeedsUI()
 end
 
-event.register("uiCreated", createNeedsUI, { filter = "MenuStat" } )
+local function createStatsMenuNeedsUI(e)
+    --local leftPane = e.element:findChild(tes3ui.registerID("MenuStat_left_main"))
+    local startingBlock = e.element:findChild(tes3ui.registerID("MenuInventory_character_box")).parent
+    ---Needs Block
+    local needsBlock = startingBlock:findChild(IDs.needsBlock)
+    if needsBlock then
+        needsBlock:destroyChildren()
+    else
+        needsBlock = startingBlock:createThinBorder({id = IDs.needsBlock})
+    end
+    createNeedsUI(needsBlock)
+end
+
+function this.createSleepBlock(e)
+
+    local isWaiting = ( e.element:findChild( tes3ui.registerID("MenuRestWait_rest_button") ).visible == false )
+    if not isWaiting then
+        local sleepBlock = e.element:createBlock()
+        setupNeedsElementBlock(sleepBlock)
+
+        
+
+        sleepBlock.maxWidth = 250
+        sleepBlock.borderTop = 10
+
+        local sleepBar = sleepBlock:createFillBar({ id = IDs.sleep.fillBar, current = 100, max = 100})
+        setupNeedsBar(sleepBar)
+
+        sleepBar.widget.fillColor = {(4/255), (114/255), (43/255)}
+
+        local sleepConditionLabel = sleepBlock:createLabel({ id = IDs.sleep.condition, text = "Rested"})
+        setupConditionLabel(sleepConditionLabel)
+
+        updateSleepBlock(e.element)
+    end
+end
+
+
+event.register("uiCreated", createStatsMenuNeedsUI, { filter = "MenuInventory" } )
+
 
 return this

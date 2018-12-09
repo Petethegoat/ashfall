@@ -1,29 +1,43 @@
 local common = require("mer.ashfall.common")
+local needsUI = require("mer.ashfall.needs.needsUI")
 local this = {}
 
 local coldRestLimit = common.tempConditions.veryCold.min
 local hotRestLimit = common.tempConditions.veryHot.max
 local interruptText = ""
 local isScripted
-
+local isWaiting
 local bedTemp = 20
-local tentTemp = 35
+
 
 local function setRestValues(e)
     if not common.data then return end
     --scripted means the player has activated a bed or bedroll
     isScripted = e.scripted
+    isWaiting = not e.allowRest
     --Set interrupt text
     local tempText
     local temp = common.data.tempLimit
     local tempText = ( temp < 0 ) and "cold" or "hot"
     local restText = ( e.allowRest ) and "rest" or "wait"
+    
     interruptText = string.format("It is too %s to %s, you must find shelter!", tempText, restText)
-
 
 end
 
+local function hideSleepItems(restMenu)
+    local hiddenList = {}
+    hiddenList.scrollbar = restMenu:findChild( tes3ui.registerID("MenuRestWait_scrollbar") )
+    hiddenList.hourText = restMenu:findChild( tes3ui.registerID("MenuRestWait_hour_text") )
+    hiddenList.hourActualText = hiddenList.hourText.parent.children[2]
+    hiddenList.untilHealed = restMenu:findChild( tes3ui.registerID("MenuRestWait_untilhealed_button") )
+    hiddenList.wait = restMenu:findChild( tes3ui.registerID("MenuRestWait_wait_button") )
+    hiddenList.rest = restMenu:findChild( tes3ui.registerID("MenuRestWait_rest_button") )
 
+    for _, element in pairs(hiddenList) do
+        element.visible = false
+    end
+end
 
 --Prevent sleep if ENVIRONMENT is too cold/hot
 --We do this by tapping into the Rest Menu,
@@ -32,10 +46,6 @@ local function activateRestMenu (e)
     if not common.data then return end
 
     if isScripted then
-        local RestText = e.element:findChild(tes3ui.registerID("MenuRestWait_label_text"))
-        local warmthRatingLabelText = string.format("Warmth Rating: %s", bedTemp)
-        RestText.text = RestText.text .. " (" .. warmthRatingLabelText ..")"
-
         --manually update temp so you can see what it will be with the bedTemp added
         if common.data.tempLimit < 0 then
             common.data.bedTemp = bedTemp
@@ -45,26 +55,26 @@ local function activateRestMenu (e)
     end
 
     local temp = common.data.tempLimit + ( isScripted and common.bedTemp or 0 )
+    local restMenu = e.element
+    local labelText = restMenu:findChild( tes3ui.registerID("MenuRestWait_label_text") )
+
     if temp < ( coldRestLimit ) or temp > ( hotRestLimit - common.data.bedTemp ) then
-
-        local restMenu = e.element
-        
-        local labelText = restMenu:findChild( tes3ui.registerID("MenuRestWait_label_text") )
         labelText.text = interruptText
-        
-        local hiddenList = {}
-        hiddenList.scrollbar = restMenu:findChild( tes3ui.registerID("MenuRestWait_scrollbar") )
-        hiddenList.hourText = restMenu:findChild( tes3ui.registerID("MenuRestWait_hour_text") )
-        hiddenList.hourActualText = hiddenList.hourText.parent.children[2]
-        hiddenList.untilHealed = restMenu:findChild( tes3ui.registerID("MenuRestWait_untilhealed_button") )
-        hiddenList.wait = restMenu:findChild( tes3ui.registerID("MenuRestWait_wait_button") )
-        hiddenList.rest = restMenu:findChild( tes3ui.registerID("MenuRestWait_rest_button") )
-
-        for _, element in pairs(hiddenList) do
-            element.visible = false
-        end
-        restMenu:updateLayout()
+        hideSleepItems(restMenu)
+    elseif common.data.hunger > common.hungerConditions.starving.min then
+        labelText.text = "You are too hungry to " .. ( isWaiting and "wait." or "rest.")
+        hideSleepItems(restMenu)
+    elseif common.data.thirst > common.thirstConditions.dehydrated.min then
+        labelText.text = "You are too thirsty to " .. ( isWaiting and "wait." or "rest.")
+        hideSleepItems(restMenu)
+    elseif common.data.sleep < common.sleepConditions.exhausted.max and isWaiting then
+        labelText.text = "You are too tired to wait."
+        hideSleepItems(restMenu)
     end
+    
+    needsUI.createSleepBlock(e)
+
+    restMenu:updateLayout()
 end
 
 --Wake up if sleeping and ENVIRONMENT is too cold/hot
@@ -82,21 +92,28 @@ function this.checkSleeping()
         end
 
         local temp = common.data.tempLimit
+        --Temperature
         if temp < coldRestLimit or temp > hotRestLimit then
             tes3.runLegacyScript({ command = "WakeUpPC" })
             tes3.messageBox({ message = interruptText, buttons = { "Okay" } })
+
+        --hunger
+        elseif common.data.hunger > common.hungerConditions.starving.min then
+            tes3.runLegacyScript({ command = "WakeUpPC" })
+            tes3.messageBox({ message = "You are starving.", buttons = { "Okay" } }) 
+        elseif common.data.thirst > common.thirstConditions.dehydrated.min then
+            tes3.runLegacyScript({ command = "WakeUpPC" })
+            tes3.messageBox({ message = "You are dehydrated.", buttons = { "Okay" } }) 
+        elseif common.data.sleep < common.sleepConditions.exhausted.max and isWaiting then
+            tes3.runLegacyScript({ command = "WakeUpPC" })
+            tes3.messageBox({ message = "You are exhausted.", buttons = { "Okay" } }) 
         end
     else
         common.data.bedTemp = 0
     end
 end
 
-local insideTentGlobal = tes3.findGlobal("a_inside_tent")
-function this.checkForTent()
-    if insideTentGlobal.value == 1 then
-        common.data.tentTemp = tentTemp
-    end
-end
+
 
 
 

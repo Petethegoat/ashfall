@@ -28,7 +28,7 @@ function this.updateHUD()
     if outerFrame and leftTempPlayerBar and conditionLabel then
         local tempPlayer = math.clamp(common.data.tempPlayer, -100, 100) or 0
         local tempLimit =  math.clamp(common.data.tempLimit, -100, 100) or 0
-        local condition = common.tempConditions[( common.data.currentCondition  or "comfortable" )].text
+        local condition = common.tempConditions[( common.data.tempCondition  or "comfortable" )].text
         local wetness = common.data.wetness or 0
         wetness = math.clamp(wetness, 0, 100) or 0
 

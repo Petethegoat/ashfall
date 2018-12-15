@@ -4,13 +4,14 @@ local calcTemp = require("mer.ashfall.tempEffects.calcTemp")
 
 local weather = require("mer.ashfall.tempEffects.weather")
 local wetness = require("mer.ashfall.tempEffects.wetness")
-local conditions = {
+--[[local conditions = {
     tempCondition = require("mer.ashfall.conditions.tempCondition"),
     wetCondition = require("mer.ashfall.conditions.wetCondition"),
     thirstCondition = require("mer.ashfall.conditions.thirstCondition"),
     hungerConditiion = require("mer.ashfall.conditions.hungerCondition"),
     sleepCondition = require("mer.ashfall.conditions.sleepCondition")
-}
+}]]--
+local conditions = require("mer.ashfall.conditionController")
 local torch = require("mer.ashfall.tempEffects.torch")
 local raceEffects = require("mer.ashfall.tempEffects.raceEffects")
 local fireEffect = require("mer.ashfall.tempEffects.fireEffect")
@@ -61,10 +62,11 @@ local function callUpdates()
         hazardEffects.calculateHazards()
 
         --conditions
-        for _, script in pairs(conditions) do
+        --[[for _, script in pairs(conditions) do
             script.updateCondition()
-        end
+        end]]--
 
+        conditions.updateConditions()
         --visuals
         frostBreath.doFrostBreath()
         needsUI.updateNeedsUI()

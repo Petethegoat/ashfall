@@ -1,6 +1,6 @@
 local this = {}
 local common = require("mer.ashfall.common")
-local conditions = require("mer.ashfall.conditions.hungerCondition")
+local conditionsCommon = require("mer.ashfall.conditionController")
 local needsUI = require("mer.ashfall.needs.needsUI")
 
 local defaultFoodValue = 5
@@ -22,7 +22,7 @@ end
 function this.eatAmount( amount ) 
     local currentHunger = common.data.hunger or  0
     common.data.hunger = math.max( (currentHunger - amount), 0 )
-    conditions.updateCondition()
+    conditionsCommon.updateCondition("hunger")
     needsUI.updateNeedsUI()
 end
 

@@ -44,9 +44,9 @@ end
 
 function this.conditionIndicator()
     if not common.data then return end
-    if not common.tempConditions[common.data.currentCondition] then return end 
+    if not common.tempConditions[common.data.tempCondition] then return end 
     
-    local headerText = "Condition: " .. common.tempConditions[common.data.currentCondition].text--:lower()
+    local headerText = "Condition: " .. common.tempConditions[common.data.tempCondition].text--:lower()
     local labelText = "The player's current condition, determined by Player Temperature."
     createTooltip(headerText, labelText)
 end

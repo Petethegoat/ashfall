@@ -3,10 +3,10 @@ local common = require("mer.ashfall.common")
 local ratingsCommon = require("mer.ashfall.tempEffects.ratings.ratingsCommon")
 
 local function quickFormat(element, padding)
-	element.paddingAllSides = padding
-	element.autoHeight = true
-	element.autoWidth = true
-	return element
+    element.paddingAllSides = padding
+    element.autoHeight = true
+    element.autoWidth = true
+    return element
 end
 
 --[[

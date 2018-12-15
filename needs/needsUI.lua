@@ -62,7 +62,6 @@ function this.updateNeedsUI()
         local thirstFillBar = inventoryMenu:findChild(IDs.thirst.fillBar)
         local thirstConditionLabel = inventoryMenu:findChild(IDs.thirst.condition)
         if thirstFillBar and thirstConditionLabel then
-
             --update condition
             local condition = common.data.thirstCondition or "hydrated"
             thirstConditionLabel.text = common.thirstConditions[ condition ].text or common.thirstConditions.hydrated.text
@@ -184,8 +183,6 @@ function this.createSleepBlock(e)
     if not isWaiting then
         local sleepBlock = e.element:createBlock()
         setupNeedsElementBlock(sleepBlock)
-
-        
 
         sleepBlock.maxWidth = 250
         sleepBlock.borderTop = 10

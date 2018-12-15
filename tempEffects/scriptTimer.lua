@@ -5,11 +5,11 @@ local calcTemp = require("mer.ashfall.tempEffects.calcTemp")
 local weather = require("mer.ashfall.tempEffects.weather")
 local wetness = require("mer.ashfall.tempEffects.wetness")
 local conditions = {
-	tempCondition = require("mer.ashfall.conditions.tempCondition"),
-	wetCondition = require("mer.ashfall.conditions.wetCondition"),
-	thirstCondition = require("mer.ashfall.conditions.thirstCondition"),
-	hungerConditiion = require("mer.ashfall.conditions.hungerCondition"),
-	sleepCondition = require("mer.ashfall.conditions.sleepCondition")
+    tempCondition = require("mer.ashfall.conditions.tempCondition"),
+    wetCondition = require("mer.ashfall.conditions.wetCondition"),
+    thirstCondition = require("mer.ashfall.conditions.thirstCondition"),
+    hungerConditiion = require("mer.ashfall.conditions.hungerCondition"),
+    sleepCondition = require("mer.ashfall.conditions.sleepCondition")
 }
 local torch = require("mer.ashfall.tempEffects.torch")
 local raceEffects = require("mer.ashfall.tempEffects.raceEffects")
@@ -27,9 +27,9 @@ local tentController = require("mer.ashfall.tentController")
 --Needs
 local needsUI = require("mer.ashfall.needs.needsUI")
 local needs = {
-	thirst = require("mer.ashfall.needs.thirst.thirstCalculate"),
-	hunger = require("mer.ashfall.needs.hunger.hungerCalculate"),
-	sleep = require("mer.ashfall.needs.sleep.sleepCalculate")
+    thirst = require("mer.ashfall.needs.thirst.thirstCalculate"),
+    hunger = require("mer.ashfall.needs.hunger.hungerCalculate"),
+    sleep = require("mer.ashfall.needs.sleep.sleepCalculate")
 }
 
 
@@ -37,46 +37,46 @@ local needs = {
 local scriptInterval = 0.0005
 
 local function callUpdates()
-	
+    
     calcTemp.calculateTemp(scriptInterval)
-	weather.calculateWeatherEffect()
-	wetness.calcaulateWetTemp(scriptInterval)
-	
-	sleepController.checkSleeping()
-	
+    weather.calculateWeatherEffect()
+    wetness.calcaulateWetTemp(scriptInterval)
+    
+    sleepController.checkSleeping()
+    
 
-	--Needs:
-	for _, script in pairs(needs) do
-		script.calculate(scriptInterval)
-	end
+    --Needs:
+    for _, script in pairs(needs) do
+        script.calculate(scriptInterval)
+    end
 
     --For heavy scripts and those that don't need to be run while sleeping
-	if tes3.menuMode() == false then
-		tentController.checkTent()
-		--temp effects
+    if tes3.menuMode() == false then
+        tentController.checkTent()
+        --temp effects
         raceEffects.calculateRaceEffects()
         torch.calculateTorchTemp()
-		fireEffect.calculateFireEffect()
-		magicEffects.calculateMagicEffects()
-		hazardEffects.calculateHazards()
+        fireEffect.calculateFireEffect()
+        magicEffects.calculateMagicEffects()
+        hazardEffects.calculateHazards()
 
-		--conditions
-		for _, script in pairs(conditions) do
-			script.updateCondition()
-		end
+        --conditions
+        for _, script in pairs(conditions) do
+            script.updateCondition()
+        end
 
-		--visuals
-		frostBreath.doFrostBreath()
-		needsUI.updateNeedsUI()
-	end
-	
+        --visuals
+        frostBreath.doFrostBreath()
+        needsUI.updateNeedsUI()
+    end
+    
 end
 
 local function dataLoaded()
-	callUpdates()
-	timer.delayOneFrame(function()
-		timer.start({duration = scriptInterval, callback = callUpdates, type = timer.game, iterations = -1})
-	end)
+    callUpdates()
+    timer.delayOneFrame(function()
+        timer.start({duration = scriptInterval, callback = callUpdates, type = timer.game, iterations = -1})
+    end)
 end
 
 --Register functions

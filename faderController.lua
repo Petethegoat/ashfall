@@ -2,17 +2,17 @@ local this = {}
 this.faders = {}
 
 local function faderSetup()
-	this.faders.freezing = tes3fader.new()
-	this.faders.freezing:setTexture("Textures/survival/faders/freeze_static.dds")
-	this.faders.freezing:setColor({ color = { 0.5, 0.5, 0.5 }, flag = false })
+    this.faders.freezing = tes3fader.new()
+    this.faders.freezing:setTexture("Textures/survival/faders/freeze_static.dds")
+    this.faders.freezing:setColor({ color = { 0.5, 0.5, 0.5 }, flag = false })
 
-	for _, fader in pairs( this.faders ) do
-		event.register("enterFrame", 
-			function()
-				fader:update()
-			end
-		)
-	end
+    for _, fader in pairs( this.faders ) do
+        event.register("enterFrame", 
+            function()
+                fader:update()
+            end
+        )
+    end
 end
 
 function this.fadeOut(fader)

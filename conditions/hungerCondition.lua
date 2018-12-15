@@ -1,5 +1,6 @@
 local this = {}
 local common = require("mer.ashfall.common")
+local conditionsCommon = require("mer.ashfall.conditions.conditionsCommon")
 local previousCondition
 
 local conditions = common.hungerConditions
@@ -15,19 +16,22 @@ function this.updateCondition()
         if conditionValues.min <= hunger and hunger <= conditionValues.max then
             newCondition = conditionType
             if newCondition ~= previousCondition then
-				--Changing conditions, remove old, add new
-				for _, innerVal in pairs(conditions)  do
-					if innerVal.spell ~= "NONE" then
-						mwscript.removeSpell({ reference = tes3.player, spell = innerVal.spell })
-					end
-                end               
+                --Changing conditions, remove old, add new
+                for _, innerVal in pairs(conditions)  do
+                    if innerVal.spell ~= "NONE" then
+                        mwscript.removeSpell({ reference = tes3.player, spell = innerVal.spell })
+                    end
+                end
+
+                conditionsCommon.setSpellStrength(conditions[newCondition].spell)
+
                 --Add new condition
                 if common.data.showHungerMessages then
                     tes3.messageBox("You are " .. string.lower(conditions[ newCondition].text) )
                 end
-				if newCondition ~= "dry" then
-					mwscript.addSpell({ reference=tes3.player, spell = conditionValues.spell })
-				end
+                if newCondition ~= "dry" then
+                    mwscript.addSpell({ reference=tes3.player, spell = conditionValues.spell })
+                end
                 common.data.hungerCondition = newCondition 
             end
             break

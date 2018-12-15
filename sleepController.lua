@@ -20,7 +20,7 @@ local function setRestValues(e)
     local temp = common.data.tempLimit
     local tempText = ( temp < 0 ) and "cold" or "hot"
     local restText = ( e.allowRest ) and "rest" or "wait"
-    
+
     interruptText = string.format("It is too %s to %s, you must find shelter!", tempText, restText)
 
 end
@@ -71,7 +71,7 @@ local function activateRestMenu (e)
         labelText.text = "You are too tired to wait."
         hideSleepItems(restMenu)
     end
-    
+
     needsUI.createSleepBlock(e)
 
     restMenu:updateLayout()
@@ -97,14 +97,19 @@ function this.checkSleeping()
             tes3.runLegacyScript({ command = "WakeUpPC" })
             tes3.messageBox({ message = interruptText, buttons = { "Okay" } })
 
-        --hunger
-        elseif common.data.hunger > common.hungerConditions.starving.min then
+            --needs
+
+        end
+        local hunger = common.data.hunger or 0
+        local thirst = common.data.thirst or 0
+        local sleep = common.data.sleep or 100
+        if hunger > common.hungerConditions.starving.min then
             tes3.runLegacyScript({ command = "WakeUpPC" })
             tes3.messageBox({ message = "You are starving.", buttons = { "Okay" } }) 
-        elseif common.data.thirst > common.thirstConditions.dehydrated.min then
+        elseif thirst > common.thirstConditions.dehydrated.min then
             tes3.runLegacyScript({ command = "WakeUpPC" })
             tes3.messageBox({ message = "You are dehydrated.", buttons = { "Okay" } }) 
-        elseif common.data.sleep < common.sleepConditions.exhausted.max and isWaiting then
+        elseif sleep < common.sleepConditions.exhausted.max and isWaiting then
             tes3.runLegacyScript({ command = "WakeUpPC" })
             tes3.messageBox({ message = "You are exhausted.", buttons = { "Okay" } }) 
         end

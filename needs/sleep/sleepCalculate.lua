@@ -31,7 +31,6 @@ function this.calculate(scriptInterval)
         end
     --Waiting
     elseif tes3.menuMode() then
-        mwse.log("waiting")
         sleep = sleep - ( scriptInterval * loseSleepRateWaiting )
     else
         sleep = sleep - ( scriptInterval * loseSleepRate )

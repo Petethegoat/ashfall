@@ -6,13 +6,13 @@ local function createTooltip(thisHeader, thisLabel)
     local tooltip = tes3ui.createTooltipMenu()
     
     local outerBlock = tooltip:createBlock({ id = tes3ui.registerID("Ashfall:temperatureIndicator_outerBlock") })
-	outerBlock.flowDirection = "top_to_bottom"
-	outerBlock.paddingTop = 6
-	outerBlock.paddingBottom = 12
-	outerBlock.paddingLeft = 6
-	outerBlock.paddingRight = 6
-	outerBlock.width = 300
-	outerBlock.autoHeight = true    
+    outerBlock.flowDirection = "top_to_bottom"
+    outerBlock.paddingTop = 6
+    outerBlock.paddingBottom = 12
+    outerBlock.paddingLeft = 6
+    outerBlock.paddingRight = 6
+    outerBlock.width = 300
+    outerBlock.autoHeight = true    
     
     local headerText = thisHeader
     local headerLabel = outerBlock:createLabel({ id = tes3ui.registerID("Ashfall:temperatureIndicator_header"), text = headerText })

@@ -21,7 +21,7 @@ this.activatorList = {
 }
 
 local activatorPatterns = {
-	["ex_nord_well"] = "well",
+    ["ex_nord_well"] = "well",
     ["kegstand"] = "keg",
     ["firepit"] = "campfire",
     ["pitfire"] = "campfire",
@@ -32,37 +32,34 @@ local id_toolTip = tes3ui.registerID("Ashfall:activatorTooltip")
 local id_label = tes3ui.registerID("Ashfall:activatorTooltipLabel")
 
 
-
-local lookingAtWater
-
 --Create water/well tooltip if it doesn't exist
 local function createTooltip()
     local text = this.currentActivator
-	local tooltip = tes3ui.findMenu(id_toolTip)
-	if not tooltip then
-		tooltip = tes3ui.createMenu{id = id_toolTip, fixedFrame = true}
-		tooltip.positionX = 200
-		tooltip.absolutePosAlignY  = 0.05
-		tooltip.autoHeight = true
-		tooltip.autoWidth = true
+    local tooltip = tes3ui.findMenu(id_toolTip)
+    if not tooltip then
+        tooltip = tes3ui.createMenu{id = id_toolTip, fixedFrame = true}
+        tooltip.positionX = 200
+        tooltip.absolutePosAlignY  = 0.05
+        tooltip.autoHeight = true
+        tooltip.autoWidth = true
 
-		local label = tooltip:createLabel{ id=id_label, text = text}
-		label.autoHeight = true
-		label.autoWidth = true
-		label.wrapText = true
+        local label = tooltip:createLabel{ id=id_label, text = text}
+        label.autoHeight = true
+        label.autoWidth = true
+        label.wrapText = true
         label.justifyText = "center"
         
         lookingAtWater = true
-	end
+    end
 end
 
 -- Destroy the water/well tooltip if it exists
 local function destroyTooltip()
-	local tooltip = tes3ui.findMenu(id_toolTip)
-	if tooltip then
+    local tooltip = tes3ui.findMenu(id_toolTip)
+    if tooltip then
         tooltip:destroy()
         lookingAtWater = false
-	end
+    end
 end
 
 
@@ -81,12 +78,12 @@ local function callRayTest()
             local targetRef = result.reference
             if targetRef then
 
-                mwse.log("Looking at: %s", targetRef.id)
+                --mwse.log("Looking at: %s", targetRef.id)
 
                 for pattern, activator in pairs(activatorPatterns) do
                     if string.find(string.lower(targetRef.id), pattern) then
 
-                        mwse.log("Returning activator")
+                        --mwse.log("Returning activator")
 
                         this.currentActivator = this.activatorList[activator]
                         createTooltip()
@@ -103,13 +100,12 @@ local function callRayTest()
         local adjustedIntersection = tes3vector3.new( intersection.x, intersection.y, waterLevel )
         local adjustedDistance = camPosition:distance(adjustedIntersection)
         if adjustedDistance < 300 and cell.hasWater then
-            local blocked
-            if result.reference then
-                if result.reference.object.objectType ~= tes3.objectType.static then
-                    blocked = true
-                end
-            end
-            if camPosition.z > waterLevel and intersection.z < waterLevel and not blocked then
+            local blockedBySomething =
+                result.reference and
+                result.reference.object.objectType ~= tes3.objectType.static
+            local cameraIsAboveWater = camPosition.z > waterLevel
+            local isLookingAtWater = intersection.z < waterLevel
+            if cameraIsAboveWater and isLookingAtWater and not blockedBySomething then
                 this.currentActivator = this.activatorList.water
                 createTooltip()
                 return
@@ -117,14 +113,9 @@ local function callRayTest()
         end
     end
     this.currentActivator = nil
-	destroyTooltip()
+    destroyTooltip()
 end
 
-local function dataLoaded()
-	event.register("enterFrame", callRayTest)
-end
-
---Register functions
-event.register("Ashfall:dataLoaded", dataLoaded)
-
+event.register("enterFrame", callRayTest)
+event.register("menuEnter", destroyTooltip)
 return this
